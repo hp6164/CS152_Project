@@ -94,4 +94,5 @@
 |print|OUTPUT|
 |ret|RETURN|
 |,|COMMA|
+|:|BEGINFUNCTION|
 |~~B~~ (whitespace)|#|
