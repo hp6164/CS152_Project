@@ -12,6 +12,41 @@
   - Should not end in or contain “.” 
 
 
+
+|    C++ syntax     | Plain syntax |
+|          :---:            |          :---:             |
+|int| num |
+|array| list |
+|=|=|
+|+, -, *, /| +, -, *, / |
+|<|lt|
+|>|gt|
+|<=|leq|
+|>=|geq|
+|==|same|
+|!|NOT|
+| &#124; | OR |
+|&&| AND |
+|!=|diff|
+|while|loop|
+|break|break|
+|continue|contn|
+|if/else if/else|IF/ELSE IF/ELSE|
+|cin|scan|
+|cout|print|
+| // | $ |
+|/*...*/| $'....'$|
+|Func_type func_name(parameter)|:func_name (parameter)func_type|
+|return|ret|
+|;|.|
+
+
+
+
+
+
+
+
 |    Symbol in language     | TOKEN for lexical analyzer |
 |          :---:            |          :---:             |
 |integer number|NUMBER XXXX|
