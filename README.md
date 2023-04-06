@@ -94,5 +94,5 @@
 |print|OUTPUT|
 |ret|RETURN|
 |,|COMMA|
-|:|BEGINFUNCTION|
+|:|COLON|
 |~~B~~ (whitespace)|#|
