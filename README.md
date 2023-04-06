@@ -42,7 +42,18 @@
 
 
 
-
+|    Language Feature     | Code Example |
+|          :---            |          :---             |
+|Scalar integer|num a. <br /> num a,b = 1.|
+|One-dimensional array of integers|list firstList[5]. <br /> firstList[2] = 3.|
+|Assignment statements|a = 5.|
+|Arithmetic operators|a = b + c. <br /> a = b - c. <br /> a = b / c. <br /> a = b * c.|
+|Relational operators |a gt b <br /> a lt b <br /> a leq b <br /> a geq b <br /> a same b <br /> NOT a <br /> a OR b <br /> a AND b <br /> a diff b|
+|While loop|:-- loop \|condition\|  { <br />  &nbsp; &nbsp; &nbsp; …$Statements <br />  }|
+|If-then-else statements|IF \|a gt b\| <br /> { <br /> &nbsp; &nbsp; &nbsp; … <br /> &nbsp; &nbsp; &nbsp; contn. <br /> } <br /> ELSE IF \|a lt b\| <br /> { <br /> &nbsp; &nbsp; &nbsp; …$Statements <br /> &nbsp; &nbsp; &nbsp; break. <br /> } <br /> ELSE <br /> { <br /> &nbsp; &nbsp; &nbsp;…$Statements <br /> }|
+|Read and write statements|scan(a). <br /> print(a).|
+|Comments|\$Statements <br /> \$’ I <br /> &nbsp; &nbsp;  Am <br /> &nbsp; &nbsp; Writing in three lines ‘\$|
+|Functions|:addTwo (num a, num b) num <br />{ <br /> &nbsp; &nbsp; &nbsp; ret a+b. <br /> }|
 
 
 
