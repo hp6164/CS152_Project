@@ -2,6 +2,8 @@
 
 ## Language name: Plain
 
+Extension for programs written in Plain: p (e.g., hello.p)
+Compiler Name: PlainC 
 
 - Plain is case sensitive
 - White Spaces are ignored in our language
