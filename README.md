@@ -27,13 +27,13 @@ Compiler Name: PlainC </p>
 |>=|geq|
 |==|same|
 |!|NOT|
-| &#124; | OR |
+| &#124; &#124;  | OR |
 |&&| AND |
 |!=|diff|
 |while|loop|
 |break|break|
 |continue|contn|
-|if/else if/else|IF/ELSE IF/ELSE|
+|if/else|IF/ELSE|
 |cin|scan|
 |cout|print|
 | // | $ |
