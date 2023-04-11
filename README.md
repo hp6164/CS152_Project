@@ -36,11 +36,11 @@ Compiler Name: PlainC </p>
 |if/else|IF/ELSE|
 |cin|scan()|
 |cout|print()|
-|cout << endl;  | printL() |
+|cout << ... << endl  | printL() |
 | // | $ |
 |/\*...\*/| &#36; '...' &#36; |
 |Func_type func_name(parameter)|:func_name (parameter)func_type|
-|return;|ret.|
+|return|ret|
 |;|.|
 
 
