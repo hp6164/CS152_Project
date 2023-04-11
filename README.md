@@ -20,7 +20,7 @@ Compiler Name: PlainC </p>
 |int| num |
 |array| list |
 |=|=|
-|+, -, *, /| +, -, *, / |
+|+, -, *, /, %| +, -, *, /, % |
 |<|lt|
 |>|gt|
 |<=|leq|
