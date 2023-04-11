@@ -4,7 +4,7 @@
     loop | n geq 0 |
     {
         print(n).
-	IF | n same 8 |
+	    IF | n same 8 |
         {
             break.
         }
