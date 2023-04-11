@@ -90,7 +90,6 @@ Compiler Name: PlainC </p>
 |.|PERIOD|
 |loop|LOOP|
 |IF|IF|
-|ELSE IF|ELSE IF|
 |ELSE|ELSE|
 |scan|INPUT|
 |print|OUTPUT|
