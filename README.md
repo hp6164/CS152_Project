@@ -63,7 +63,7 @@ Compiler Name: PlainC </p>
 
 |    Symbol in language     | TOKEN for lexical analyzer |
 |          :---:            |          :---:             |
-|integer number|NUMBER XXXX|
+|integer number|NUMBERXXXX|
 |variable names|IDENTIFIER|
 |+|PLUS|
 |-|MINUS|
