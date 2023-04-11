@@ -14,5 +14,7 @@
 
   a[3] = a[0] * (a[1] + c).
   print(a[3]).    $should print out 840; since 840 = 8 * (100 +5)
+  
+  ret 0.
 
 }
