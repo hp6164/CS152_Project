@@ -34,12 +34,13 @@ Compiler Name: PlainC </p>
 |break|break|
 |continue|contn|
 |if/else|IF/ELSE|
-|cin|scan|
-|cout|print|
+|cin|scan()|
+|cout|print()|
+|cout << endl;  | printL() |
 | // | $ |
 |/\*...\*/| &#36; '...' &#36; |
 |Func_type func_name(parameter)|:func_name (parameter)func_type|
-|return|ret|
+|return;|ret.|
 |;|.|
 
 
@@ -53,7 +54,7 @@ Compiler Name: PlainC </p>
 |Relational operators |a gt b <br /> a lt b <br /> a leq b <br /> a geq b <br /> a same b <br /> NOT a <br /> a OR b <br /> a AND b <br /> a diff b|
 |While loop|:-- loop \|condition\|  { <br />  &nbsp; &nbsp; &nbsp; …$Statements <br />  }|
 |If-then-else statements|IF \|a gt b\| <br /> { <br /> &nbsp; &nbsp; &nbsp; …$Statements <br />    } <br /> ELSE <br /> { <br /> &nbsp; &nbsp; &nbsp;…$Statements <br /> }|
-|Read and write statements|scan(a). <br /> print(a).|
+|Read and write statements|scan(a). <br /> print(a). <br /> printL(a).|
 |Comments|\$Statements <br /> \$’ I <br /> &nbsp; &nbsp;  Am <br /> &nbsp; &nbsp; Writing in three lines ‘\$|
 |Functions|:addTwo (num a, num b) num <br />{ <br /> &nbsp; &nbsp; &nbsp; ret a+b. <br /> }|
 
@@ -93,6 +94,7 @@ Compiler Name: PlainC </p>
 |ELSE|ELSE|
 |scan|INPUT|
 |print|OUTPUT|
+|printL|OUTPUT_WITH_NEWLINE|
 |ret|RETURN|
 |,|COMMA|
 |:|COLON|
