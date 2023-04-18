@@ -33,18 +33,17 @@ WHITESPACE [\s\t\n]
 
 //---------_HARSH SHARMA ABOVE_-------------//
 
-{"contn"} {printf("CONT")}
-{"."} {printf("PERIOD")}
-{"loop"} {printf("LOOP")}
-{"IF"} {printf("IF")}
-{"ELSE"} {printf("ELSE")}
-{"scan"} {printf("INPUT")}
-{"print"} {printf("OUTPUT")}
-{"printL"} {printf("OUTPUT_WITH_NEWLINE")}
-{"ret"} {printf("RETURN")}
-{","} {printf("COMMA")}
-{":"} {printf("COLON")}
-{" "} {printf("#")}
+{"/contn/"} {printf("CONT\n")}
+{"."} {printf("PERIOD\n")}
+{"/loop/"} {printf("LOOP\n")}
+{"/IF/"} {printf("IF\n")}
+{"/ELSE/"} {printf("ELSE\n")}
+{"/scan/"} {printf("INPUT\n")}
+{"/print/"} {printf("OUTPUT\n")}
+{"/printL/"} {printf("OUTPUT_WITH_NEWLINE\n")}
+{"/ret/"} {printf("RETURN\n")}
+{"/,/"} {printf("COMMA\n")}
+{"/:/"} {printf("COLON\n")}
 
 .		{printf("**Error. Unidentified token**  %s\n", yytext);}
 %%
