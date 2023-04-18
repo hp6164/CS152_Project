@@ -21,7 +21,7 @@ Letter [a-zA-z]
 {" "} {printf("#")}
 
 {DIGIT}+ {printf("NUMBER: %s\n", yytext);}
-{Letter}+ {printf("")}
+{Letter}+ {printf("Letter: %s\n",yytext);}
 
 %%
 
