@@ -35,17 +35,17 @@ WHITESPACE [\s\t\n]
 "("			{printf("L_PAR\n");}
 ")"			{printf("R_PAR\n");}
 "/break/"		{printf("BREAK\n");}
-{"/contn/"} {printf("CONT\n")}
-{"."} {printf("PERIOD\n")}
-{"/loop/"} {printf("LOOP\n")}
-{"/IF/"} {printf("IF\n")}
-{"/ELSE/"} {printf("ELSE\n")}
-{"/scan/"} {printf("INPUT\n")}
-{"/print/"} {printf("OUTPUT\n")}
-{"/printL/"} {printf("OUTPUT_WITH_NEWLINE\n")}
-{"/ret/"} {printf("RETURN\n")}
-{"/,/"} {printf("COMMA\n")}
-{"/:/"} {printf("COLON\n")}
+"/contn/" {printf("CONT\n");}
+"." {printf("PERIOD\n");}
+"/loop/" {printf("LOOP\n");}
+"/IF/" {printf("IF\n");}
+"/ELSE/" {printf("ELSE\n");}
+"/scan/" {printf("INPUT\n");}
+"/print/" {printf("OUTPUT\n");}
+"/printL/" {printf("OUTPUT_WITH_NEWLINE\n");}
+"/ret/" {printf("RETURN\n");}
+"/,/" {printf("COMMA\n");}
+"/:/" {printf("COLON\n");}
 
 .		{printf("**Error. Unidentified token**  %s\n", yytext);}
 %%
