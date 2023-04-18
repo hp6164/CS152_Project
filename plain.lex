@@ -32,8 +32,9 @@ WHITESPACE [\s\t\n]
 "/diff/"			{printf("NOT_EQ\n", yytext);}
 
 //---------_HARSH SHARMA ABOVE_-------------//
-
-
+"("			{printf("L_PAR\n");}
+")"			{printf("R_PAR\n");}
+"/break/"		{printf("BREAK\n");}
 {"/contn/"} {printf("CONT\n")}
 {"."} {printf("PERIOD\n")}
 {"/loop/"} {printf("LOOP\n")}
