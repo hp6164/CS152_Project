@@ -21,17 +21,18 @@ WHITESPACE [\s\t\n]
 "}"             {printf("L_CUR:(})\n", yytext);}
 "|"				{printf("CONTAIN:(|)\n", yytext);}
 "="				{printf("EQ:(=)\n", yytext);}
-"<"				{printf("L_T:(<)\n", yytext);}
-">"				{printf("G_T:(>)\n", yytext);}
-"/<=/"			{printf("L_EQ:(<=)\n", yytext);}
-"/>=/"			{printf("G_EQ:(>=)\n", yytext);}
+"/lt/"				{printf("L_T:(<)\n", yytext);}
+"/gt/"				{printf("G_T:(>)\n", yytext);}
+"/leq/"			{printf("L_EQ:(<=)\n", yytext);}
+"/geq/"			{printf("G_EQ:(>=)\n", yytext);}
 "/AND/"			{printf("AND\n", yytext);}
 "/OR/"			{printf("OR\n", yytext);}
 "/NOT/"			{printf("NOT\n", yytext);}
-"/==/"			{printf("EQUALS\n", yytext);}
-"/!=/"			{printf("NOT_EQ\n", yytext);}
+"/same/"			{printf("EQUALS\n", yytext);}
+"/diff/"			{printf("NOT_EQ\n", yytext);}
 
 //---------_HARSH SHARMA ABOVE_-------------//
+
 
 {"/contn/"} {printf("CONT\n")}
 {"."} {printf("PERIOD\n")}
