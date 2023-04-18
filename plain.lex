@@ -5,9 +5,10 @@
 
 DIGIT [0-9]
 ALPHA [a-zA-z]
+WHITESPACE [\s\t\n]
 %%
 
-"\s"            //ignore whitespace
+{WHITESPACE}+    //ignore whitespace
 {DIGIT}+	    {printf("NUM: %s\n", yytext);}
 {ALPHA}+	    {printf("IDENTIFIER:	%s\n", yytext);}
 "+"		        {printf("PLUS:(+)\n", yytext);}
