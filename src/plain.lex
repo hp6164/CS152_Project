@@ -6,12 +6,18 @@ int col = 1;
 %}
 
 DIGIT [0-9]
-ALPHA [a-zA-z]
+VARI [a-zA-z][a-zA-Z0-9]*
+NUMLETTER [0-9]+[a-zA-z]+
+COLONLETTER [a-zA-z:]+
+DOLLARLETTER [a-zA-z$]+
+POUNDLETTER [a-zA-z#]+
+
+
 %%
 
 [\n]+      {newLine++; col = 1;}
 [ ]+    	{printf("#\n"); col++;}
-{DIGIT}+	    {printf("NUM: %s\n", yytext); col++;}
+
 "+"		        {printf("PLUS\n"); col++;}
 "-"             {printf("MINUS\n"); col++;}
 "/"             {printf("DIVIDE\n"); col++;}	
@@ -45,7 +51,12 @@ printL {printf("OUTPUT_WITH_NEWLINE\n"); col += 6;}
 ret {printf("RETURN\n"); col += 3;}
 "," {printf("COMMA\n"); col++;}
 ":" {printf("COLON\n"); col++;}
-{ALPHA}+            {printf("IDENTIFIER:%s\n", yytext); col++;}
+{POUNDLETTER} {{printf("Error at line %d, column %d: identifier %s cannot use variable name with pound \n",newLine, col, yytext);}}
+{DOLLARLETTER} {{printf("Error at line %d, column %d: identifier %s cannot use variable name with dollar \n",newLine, col, yytext);}}
+{COLONLETTER} {{printf("Error at line %d, column %d: identifier %s cannot use variable name with colon \n",newLine, col, yytext);}}
+{NUMLETTER} {{printf("Error at line %d, column %d: identifier %s must begin with a letter \n",newLine, col, yytext);}}
+{DIGIT}+	    {printf("NUM: %s\n", yytext); col++;}
+{VARI}            {printf("IDENTIFIER:%s\n", yytext); col++;}
 
 .		{printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%
