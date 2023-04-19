@@ -16,7 +16,7 @@ POUNDLETTER [a-zA-z#]+
 %%
 
 [\n]+      {newLine++; col = 1;}
-[ \t]+    	{col++;}
+[ \t]+    	{col += 8;}
 
 "+"		        {printf("PLUS\n"); col++;}
 "-"             {printf("MINUS\n"); col++;}
