@@ -1,0 +1,4 @@
+/src/*.out
+/src/lex.yy.c
+/program_examples/*.out
+*.out
