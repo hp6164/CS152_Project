@@ -12,10 +12,10 @@ ALPHA [a-zA-z]
 [\n]+      {newLine++; col = 1;}
 [ ]+    	{printf("#\n"); col++;}
 {DIGIT}+	    {printf("NUM: %s\n", yytext); col++;}
-"+"		        {printf("PLUS:(+)\n"); col++;}
-"-"             {printf("MINUS:(-)\n"); col++;}
-"/"             {printf("DIVIDE:(/)\n"); col++;}	
-"*"             {printf("MULTIPLY:(*)\n"); col++;}
+"+"		        {printf("PLUS\n"); col++;}
+"-"             {printf("MINUS\n"); col++;}
+"/"             {printf("DIVIDE\n"); col++;}	
+"*"             {printf("MULTIPLY\n"); col++;}
 "{"             {printf("L_CUR\n"); col++;}
 "}"             {printf("R_CUR\n"); col++;}
 "/[/"		{printf("L_SQR\n"); col++;}
