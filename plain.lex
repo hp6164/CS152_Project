@@ -17,17 +17,17 @@ ALPHA [a-zA-z]
 "}"             {printf("R_CUR\n");}
 "/[/"		{printf("L_SQR\n");}
 "/]/"		{printf("R_SQR\n");}
-"|"				{printf("CONTAIN:(|)\n", yytext);}
-"="				{printf("EQ:(=)\n", yytext);}
-'lt'				{printf("L_T:(<)\n", yytext);}
-"/gt/"				{printf("G_T:(>)\n", yytext);}
-"/leq/"			{printf("L_EQ:(<=)\n", yytext);}
-"/geq/"			{printf("G_EQ:(>=)\n", yytext);}
-"/AND/"			{printf("AND\n", yytext);}
-"/OR/"			{printf("OR\n", yytext);}
-"/NOT/"			{printf("NOT\n", yytext);}
-"/same/"			{printf("EQUALS\n", yytext);}
-"/diff/"			{printf("NOT_EQ\n", yytext);}
+"|"				{printf("CONTAIN\n");}
+"="				{printf("EQ\n");}
+'lt'				{printf("L_T\n";}
+"/gt/"				{printf("G_T\n");}
+"/leq/"			{printf("L_EQ\n");}
+"/geq/"			{printf("G_EQ\n");}
+"/AND/"			{printf("AND\n");}
+"/OR/"			{printf("OR\n");}
+"/NOT/"			{printf("NOT\n");}
+"/same/"			{printf("EQUALS\n");}
+"/diff/"			{printf("NOT_EQ\n");}
 "("			{printf("L_PAR\n");}
 ")"			{printf("R_PAR\n");}
 "/break/"		{printf("BREAK\n");}
