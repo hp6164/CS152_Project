@@ -24,8 +24,8 @@ POUNDLETTER [a-zA-z#]+
 "*"             {printf("MULTIPLY\n"); col++;}
 "{"             {printf("L_CUR\n"); col++;}
 "}"             {printf("R_CUR\n"); col++;}
-"/[/"		{printf("L_SQR\n"); col++;}
-"/]/"		{printf("R_SQR\n"); col++;}
+"["		{printf("L_SQR\n"); col++;}
+"]"		{printf("R_SQR\n"); col++;}
 "|"				{printf("CONTAIN\n"); col++;}
 "="				{printf("EQ\n"); col++;}
 lt				{printf("L_T\n"); col += 2;}
