@@ -29,20 +29,14 @@ statements: %empty {printf("statements --> epsilon")}
 statement:  declaration
             | function_call
             | pstatements
-            | rstatements
+            | rstatement
             ;
 
-pstatements: pstatement PERIOD
-            | pstatement PERIOD pstatements
-            ;
+declaration: 
 
-pstatement:  OUTPUT L_PAR IDENTIFIER R_PAR
+pstatements:  OUTPUT L_PAR IDENTIFIER R_PAR
              | OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER R_PAR
              ;
-
-rstatements: rstatement PERIOD
-            | rstatement PERIOD rstatements
-            ;
 
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR
              ;
