@@ -69,6 +69,7 @@ Compiler Name: PlainC </p>
 |-|MINUS|
 |/|DIVIDE|
 |*|MULTIPLY|
+|%|MODULUS|
 |[|L_SQR|
 |]|R_SQR|
 |{|L_CUR|
