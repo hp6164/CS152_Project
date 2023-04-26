@@ -1,14 +1,16 @@
-BISON FILE FORMAT:
 %{
-
+#include <stdio.h>
 %}
-%token NUM COLON IDENTIFIER L_SQR R_SQR ....
+%token NUM COLON IDENTIFIER L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
+%token MODULUS NUM PLUS MINUS DIVIDE MULTIPLY 
+%token L_T G_T L_EQ G_EQ EQ AND OR NOT EQUALS NOT_EQ CONTAIN
+%token BREAK PERIOD CONT LOOP IF ELSE INPUT OUTPUT OUTPUT_WITH_NEWLINE
+%token RETURN COMMA COLON FUNCNAME 
 
-
-%%prog_start: %empty {printf("prog_start --> epsilon\n");}
+%%
+prog_start: %empty {printf("prog_start --> epsilon\n");}
             | functions {printf("prog_start --> functions\n");}
             ; 
-
 
 functions:  function {printf("function --> functions\n");}
             | function functions {printf("function --> function functions\n");}
