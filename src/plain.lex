@@ -7,7 +7,7 @@ int col = 1;
 
 DIGIT [0-9]
 VARI [a-zA-z][a-zA-Z0-9]*
-NUMLETTER [0-9]+[a-zA-z]+
+NUMLETTER [0-9]+[a-zA-z]+[0-9a-zA-Z]*
 COLONLETTER (^[^:]:)+
 FUNCNAME :VARI+
 COMMENT [\$].*
