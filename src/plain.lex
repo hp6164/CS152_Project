@@ -14,56 +14,56 @@ COMMENT [\$].*
 
 %%
 
-[\n]+      {newLine++; col = 1;}
-[ \t]+    	{col += 8;}
-{COMMENT}         {printf("COMMENT\n"); col++;}
-"%"             {printf("MODULUS\n"); col++;}
-"num"           {printf("NUM\n"); col++;}
-"+"		        {printf("PLUS\n"); col++;}
-"-"             {printf("MINUS\n"); col++;}
-"/"             {printf("DIVIDE\n"); col++;}	
-"*"             {printf("MULTIPLY\n"); col++;}
-"{"             {printf("L_CUR\n"); col++;}
-"}"             {printf("R_CUR\n"); col++;}
-"["		        {printf("L_SQR\n"); col++;}
-"]"		        {printf("R_SQR\n"); col++;}
-"|"				{printf("CONTAIN\n"); col++;}
-"="				{printf("EQ\n"); col++;}
-lt				{printf("L_T\n"); col += 2;}
-gt				{printf("G_T\n"); col += 2;}
-leq			    {printf("L_EQ\n"); col += 3;}
-geq			    {printf("G_EQ\n"); col += 3;}
-AND			    {printf("AND\n"); col += 3;}
-OR			    {printf("OR\n"); col += 2;}
-NOT			    {printf("NOT\n"); col += 3;}
-same			{printf("EQUALS\n"); col += 4;}
-diff			{printf("NOT_EQ\n"); col += 4;}
-"("			    {printf("L_PAR\n"); col++;}
-")"			    {printf("R_PAR\n"); col++;}
-break		    {printf("BREAK\n"); col += 5;}
-contn           {printf("CONT\n"); col += 5;}
-"."             {printf("PERIOD\n"); col++;}
-loop            {printf("LOOP\n"); col += 4;}
-IF              {printf("IF\n"); col += 2;}
-ELSE            {printf("ELSE\n"); col += 4; }
-scan            {printf("INPUT\n"); col += 4;}
-print           {printf("OUTPUT\n"); col += 5;}
-printL          {printf("OUTPUT_WITH_NEWLINE\n"); col += 6;}
-ret             {printf("RETURN\n"); col += 3;}
-","             {printf("COMMA\n"); col++;}
-":"             {printf("COLON\n"); col++;}
+[\n]+           {newLine++; col = 1;}
+[ \t]+    	    {col += 8;}
+{COMMENT}       {col++;}
+"%"             {return MODULUS; col++;}
+"num"           {return NUM; col++;}
+"+"		        {return PLUS; col++;}
+"-"             {return MINUS; col++;}
+"/"             {return DIVIDE; col++;}	
+"*"             {return MULTIPLY; col++;}
+"{"             {return L_CUR; col++;}
+"}"             {return R_CUR; col++;}
+"["		        {return L_SQR; col++;}
+"]"		        {return R_SQR; col++;}
+"|"				{return CONTAIN; col++;}
+"="				{return EQ; col++;}
+lt				{return L_T\; col += 2;}
+gt				{return G_T\; col += 2;}
+leq			    {return L_EQ; col += 3;}
+geq			    {return G_EQ; col += 3;}
+AND			    {return AND; col += 3;}
+OR			    {return OR; col += 2;}
+NOT			    {return NOT; col += 3;}
+same			{return EQUALS; col += 4;}
+diff			{return NOT_EQ; col += 4;}
+"("			    {return L_PAR; col++;}
+")"			    {return R_PAR; col++;}
+break		    {return BREAK; col += 5;}
+"."             {return PERIOD; col++;}
+contn           {return CONT; col += 5;}
+loop            {return LOOP; col += 4;}
+IF              {return IF; col += 2;}
+ELSE            {return ELSE; col += 4; }
+scan            {return INPUT; col += 4;}
+print           {return OUTPUT; col += 5;}
+printL          {return OUTPUT_WITH_NEWLINE; col += 6;}
+ret             {return RETURN; col += 3;}
+","             {return COMMA; col++;}
+":"             {return COLON; col++;}
 
-{FUNCNAME}      {printf("FUNCNAME:   %s\n"); col++;}
+{FUNCNAME}      {return FUNCNAME; col++;}
 {COLONLETTER}   {{printf("Error at line %d, column %d: identifier %s cannot use variable name with colon \n",newLine, col, yytext);}}
 {NUMLETTER}     {{printf("Error at line %d, column %d: identifier %s must begin with a letter \n",newLine, col, yytext);}}
 
-{DIGIT}+	    {printf("NUM: %s\n", yytext); col++;}
-{VARI}            {printf("IDENTIFIER:%s\n", yytext); col++;}
+{DIGIT}+	    {return NUM; col++;}
+{VARI}          {return IDENTIFIER; col++;}
 
-.		{printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
+.		        {printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%
 
 int main(void){
-    printf("Ctrl+D to quit\n");
+    printf("Ctrl+D to quit;\n");
     yylex();
 }
