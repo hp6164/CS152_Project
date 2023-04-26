@@ -25,6 +25,53 @@ arguments:  %empty {printf("arguments --> epsilon");}
 argument:   %empty {printf("arguments --> epsilon");} 
             | NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER");}
             ;
+IF:   %empty {printf("if --> contain");} 
+            | CONTAIN expressions CONTAIN L_CUR statements R_CUR
+            ;
+ELSE:    
+            | L_CUR statements R_CUR
+            ;
+expressions:
+            | expression AND expressions
+            | expression OR expressions
+            | NOT expressions
+            ;
+expression:  declaration
+            | function_call
+            | mathexp
+            | expression same expression
+            | expression diff expression
+            ;
+mathexp:  
+            | mathexp addop term | term
+            ;
+addop:    
+            | PLUS 
+            | MINUS
+            ;
+term:    
+            | term mulop factor  
+            | factor
+            ;
+mulop:    
+            | MULTIPLY
+            | DIVIDE
+            | MODULUS
+            ;
+factor:    
+            | L_PAR exp R_PAR 
+            | NUM
+            ;
+
+loops:  
+            | loop loops {printf("loop --> loop loops\n");}
+            ;
+
+loop:   
+            | CONTAIN expressions CONTAIN L_CUR statements R_CUR
+            ;
+        
+
 //==============================================
 // "....go onto define all features of your language..."
 //==============================================
