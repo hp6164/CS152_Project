@@ -4,4 +4,4 @@ all:
 	bison -v -d --file-prefix=p src/plain.y
 
 clean:
-	rm -f lex.yy.c lexer
+	rm -f lex.yy.c lexer plain.y p.output
