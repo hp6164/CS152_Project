@@ -19,29 +19,38 @@ function:   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
             {printf("function -->   NUM IDENTIFIER L_PAR arguments R_PAR L_CUR statements R_CUR\n");}
 
 arguments:  %empty {printf("arguments --> epsilon");}
-            | NUM argument COMMA NUM arguments {printf("arguments --> arguments COMMA arguments");}
+            | argument COMMA arguments {printf("arguments --> arguments COMMA arguments");}
+            | argument  {printf("arguments --> argument");}
             ;
 
 argument:   %empty {printf("arguments --> epsilon");} 
             | NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER");}
             ;
-IF:   %empty {printf("if --> contain");} 
-            | CONTAIN expressions CONTAIN L_CUR statements R_CUR
+
+if-statement:   %empty {printf("if --> epsilon");} 
+                | IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement {printf("if-statement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement");}
+                | 
+                ;
+else-statement: %empty {printf("else-statement --> epsilon");}
+                | ELSE L_CUR statements R_CUR {printf("else-statement --> ELSE L_CUR statements R_CUR");}
+                ;
+expressions:    expression AND expressions {printf("expressions--> expression AND expressions");}
+                | expression OR expressions {printf("expressions--> expression OR expressions");}
+                | NOT expressions   {printf("expressions--> NOT expressions");}
+                | expression    {printf("expressions--> expression");}
+                ;
+
+expression:  declaration {printf("expressions--> declaration");}
+            | function_call {printf("expressions--> function_call");}
+            | mathexp   {printf("expressions--> mathexp")}
+            | expression same expression    {printf("expressions--> expression same expression");}
+            | expression diff expression    {printf("expressions--> expression diff expression");}
             ;
-ELSE:    
-            | L_CUR statements R_CUR
-            ;
-expressions:
-            | expression AND expressions
-            | expression OR expressions
-            | NOT expressions
-            ;
-expression:  declaration
-            | function_call
-            | mathexp
-            | expression same expression
-            | expression diff expression
-            ;
+
+function_call:  function_call PERIOD {printf("fuction_call --> expression diff expression");}
+                | FUNCNAME L_PAR paramaters R_PAR 
+                ;
+
 mathexp:  
             | mathexp addop term | term
             ;
