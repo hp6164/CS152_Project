@@ -6,6 +6,7 @@
 %token L_T G_T L_EQ G_EQ EQ AND OR NOT EQUALS NOT_EQ CONTAIN
 %token BREAK PERIOD CONT LOOP IF ELSE INPUT OUTPUT OUTPUT_WITH_NEWLINE
 %token RETURN COMMA COLON FUNCNAME 
+%token DIGIT
 
 %%
 prog_start: %empty {printf("prog_start --> epsilon\n");}
@@ -47,29 +48,30 @@ expression:  declaration {printf("expressions--> declaration");}
             | expression diff expression    {printf("expressions--> expression diff expression");}
             ;
 
-function_call:  function_call PERIOD {printf("fuction_call --> expression diff expression");}
-                | FUNCNAME L_PAR paramaters R_PAR 
+function_call:  function_call PERIOD {printf("fuction_call --> function_call PERIOD");}
+                | FUNCNAME L_PAR paramaters R_PAR {printf("function_call--> FUNCNAME L_PAR paramaters R_PAR");}
                 ;
 
 mathexp:  
-            | mathexp addop term | term
+            | mathexp addop term  {printf("mathexp --> mathexp addop term ");}
+            | term {printf("mathexp --> term ");}
             ;
 addop:    
-            | PLUS 
-            | MINUS
+            | PLUS {printf("mathexp --> PLUS ");}
+            | MINUS {printf("mathexp --> MINUS ");}
             ;
 term:    
-            | term mulop factor  
-            | factor
+            | term mulop factor  {printf("term --> term mulop factor ");}
+            | factor {printf("term --> factor ");}
             ;
 mulop:    
-            | MULTIPLY
-            | DIVIDE
-            | MODULUS
+            | MULTIPLY {printf("mulop --> MULTIPLY ");}
+            | DIVIDE {printf("mulop --> DIVIDE ");}
+            | MODULUS {printf("mulop --> MODULUS ");}
             ;
 factor:    
-            | L_PAR exp R_PAR 
-            | NUM
+            | L_PAR exp R_PAR {printf("factor --> L_PAR exp R_PAR ");}
+            | NUM {printf("factor --> NUM");}
             ;
 
 loops:  
@@ -77,26 +79,40 @@ loops:
             ;
 
 loop:   
-            | CONTAIN expressions CONTAIN L_CUR statements R_CUR
+            | CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR");}
             ;
 
-statements: %empty {printf("statements --> epsilon")}
-            | statement PERIOD statements
-            ;
-               
-statement:  declaration
-            | function_call
-            | pstatements
-            | rstatement
+statements: %empty {printf("statements --> epsilon");}
+            | statement PERIOD statements {printf("statements --> statement");}
             ;
 
-declaration: 
+statement:  declaration {printf("statement --> declaration");}
+            | function_call {printf("statement --> function_call");}
+            | pstatements {printf("statement --> pstatements");}
+            | rstatement {printf("statement --> rstatement");}
+            ;
 
-pstatements:  OUTPUT L_PAR IDENTIFIER R_PAR
-             | OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER R_PAR
+declarations:   %empty {printf("declarations --> epsilon");}
+                | NUM declaration COMMA declarations {printf("declarations --> NUM declaration COMMA declarations");}
+                | NUM declaration PERIOD {printf("declarations --> NUM declaration PERIOD");}
+
+declaration:    | IDENTIFIER {printf("declaration --> IDENTIFIER");}
+                | IDENTIFIER EQ IDENTIFIER {printf("declaration --> IDENTIFIER EQ IDENTIFIER");}
+                | IDENTIFIER EQ function_call {printf("declaration --> IDENTIFIER EQ function_call");}
+                | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp");}
+
+pstatements:  OUTPUT L_PAR printexpressions R_PAR {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
+             | OUTPUT_WITH_NEWLINE L_PAR printexpressions R_PAR {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
              ;
 
-rstatement:  INPUT L_PAR IDENTIFIER R_PAR
+printexpressions:   expressions  {printf("printexpressions --> expressions");}
+                    | IDENTIFIER {{printf("printexpressions --> IDENTIFIER");}}
+                    | mathexp {printf("printexpressions --> mathexp");}
+                    | function_call {printf("printexpressions --> function_call");}
+                    | DIGIT {printf("printexpressions --> DIGIT");}
+                    ;
+
+rstatement:  INPUT L_PAR IDENTIFIER R_PAR {printf("rstatement --> INPUT L_PAR IDENTIFIER R_PAR");}
              ;
                 
 
