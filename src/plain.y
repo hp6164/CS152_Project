@@ -70,7 +70,26 @@ loops:
 loop:   
             | CONTAIN expressions CONTAIN L_CUR statements R_CUR
             ;
-        
+
+statements: %empty {printf("statements --> epsilon")}
+            | statement PERIOD statements
+            ;
+               
+statement:  declaration
+            | function_call
+            | pstatements
+            | rstatement
+            ;
+
+declaration: 
+
+pstatements:  OUTPUT L_PAR IDENTIFIER R_PAR
+             | OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER R_PAR
+             ;
+
+rstatement:  INPUT L_PAR IDENTIFIER R_PAR
+             ;
+                
 
 //==============================================
 // "....go onto define all features of your language..."
