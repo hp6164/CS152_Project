@@ -1,11 +1,12 @@
 %{
 #include <stdio.h>
+#include "plain.y"
 %}
 %token NUM COLON IDENTIFIER L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
-%token MODULUS NUM PLUS MINUS DIVIDE MULTIPLY 
+%token MODULUS PLUS MINUS DIVIDE MULTIPLY 
 %token L_T G_T L_EQ G_EQ EQ AND OR NOT EQUALS NOT_EQ CONTAIN
 %token BREAK PERIOD CONT LOOP IF ELSE INPUT OUTPUT OUTPUT_WITH_NEWLINE
-%token RETURN COMMA COLON FUNCNAME 
+%token RETURN COMMA FUNCNAME 
 %token DIGIT
 
 %%
@@ -28,9 +29,19 @@ argument:   %empty {printf("arguments --> epsilon");}
             | NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER");}
             ;
 
-if-statement:   %empty {printf("if --> epsilon");} 
-                | IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement {printf("if-statement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement");}
-                | 
+statements: %empty {printf("statements --> epsilon");}
+            | statement statements {printf("statements --> statement");}
+            ;
+
+statement:  declarations {printf("statement --> declaration");}
+            | if-statement
+            | loops
+            | function_call {printf("statement --> function_call");}
+            | pstatements {printf("statement --> pstatements");}
+            | rstatement {printf("statement --> rstatement");}
+            ;
+
+if-statement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement {printf("if-statement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement");}
                 ;
 else-statement: %empty {printf("else-statement --> epsilon");}
                 | ELSE L_CUR statements R_CUR {printf("else-statement --> ELSE L_CUR statements R_CUR");}
@@ -44,66 +55,62 @@ expressions:    expression AND expressions {printf("expressions--> expression AN
 expression:  declaration {printf("expressions--> declaration");}
             | function_call {printf("expressions--> function_call");}
             | mathexp   {printf("expressions--> mathexp")}
-            | expression same expression    {printf("expressions--> expression same expression");}
-            | expression diff expression    {printf("expressions--> expression diff expression");}
+            | expression EQUALS expression    {printf("expressions--> expression same expression");}
+            | expression NOT_EQ expression    {printf("expressions--> expression diff expression");}
             ;
 
 function_call:  function_call PERIOD {printf("fuction_call --> function_call PERIOD");}
                 | FUNCNAME L_PAR paramaters R_PAR {printf("function_call--> FUNCNAME L_PAR paramaters R_PAR");}
                 ;
 
-mathexp:  
-            | mathexp addop term  {printf("mathexp --> mathexp addop term ");}
+paramaters:     %empty {printf("paramaters --> epsilon");}
+                | IDENTIFIER COMMA paramaters {printf("paramaters --> IDENTIFIER COMMA paramaters");}
+                | IDENTIFIER {printf("paramaters --> IDENTIFIER");}
+                ;
+
+mathexp:    mathexp addop term  {printf("mathexp --> mathexp addop term ");}
             | term {printf("mathexp --> term ");}
             ;
-addop:    
-            | PLUS {printf("mathexp --> PLUS ");}
+
+addop:      PLUS {printf("mathexp --> PLUS ");}
             | MINUS {printf("mathexp --> MINUS ");}
             ;
-term:    
-            | term mulop factor  {printf("term --> term mulop factor ");}
+
+term:       term mulop factor  {printf("term --> term mulop factor ");}
             | factor {printf("term --> factor ");}
             ;
-mulop:    
-            | MULTIPLY {printf("mulop --> MULTIPLY ");}
+
+mulop:      MULTIPLY {printf("mulop --> MULTIPLY ");}
             | DIVIDE {printf("mulop --> DIVIDE ");}
             | MODULUS {printf("mulop --> MODULUS ");}
             ;
-factor:    
-            | L_PAR exp R_PAR {printf("factor --> L_PAR exp R_PAR ");}
+
+factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR ");}
             | NUM {printf("factor --> NUM");}
             ;
 
-loops:  
+loops:      %empty {printf("loops --> epsilon");}
             | loop loops {printf("loop --> loop loops\n");}
             ;
 
-loop:   
-            | CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR");}
+loop:       CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR");}
             ;
 
-statements: %empty {printf("statements --> epsilon");}
-            | statement PERIOD statements {printf("statements --> statement");}
-            ;
-
-statement:  declaration {printf("statement --> declaration");}
-            | function_call {printf("statement --> function_call");}
-            | pstatements {printf("statement --> pstatements");}
-            | rstatement {printf("statement --> rstatement");}
-            ;
 
 declarations:   %empty {printf("declarations --> epsilon");}
                 | NUM declaration COMMA declarations {printf("declarations --> NUM declaration COMMA declarations");}
                 | NUM declaration PERIOD {printf("declarations --> NUM declaration PERIOD");}
+                ;
 
-declaration:    | IDENTIFIER {printf("declaration --> IDENTIFIER");}
+declaration:    IDENTIFIER {printf("declaration --> IDENTIFIER");}
                 | IDENTIFIER EQ IDENTIFIER {printf("declaration --> IDENTIFIER EQ IDENTIFIER");}
                 | IDENTIFIER EQ function_call {printf("declaration --> IDENTIFIER EQ function_call");}
                 | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp");}
+                ;
 
 pstatements:  OUTPUT L_PAR printexpressions R_PAR {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
-             | OUTPUT_WITH_NEWLINE L_PAR printexpressions R_PAR {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
-             ;
+              | OUTPUT_WITH_NEWLINE L_PAR printexpressions R_PAR {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
+              ;
 
 printexpressions:   expressions  {printf("printexpressions --> expressions");}
                     | IDENTIFIER {{printf("printexpressions --> IDENTIFIER");}}

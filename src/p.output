@@ -1,0 +1,1467 @@
+Terminals unused in grammar
+
+   COLON
+   L_SQR
+   R_SQR
+   L_T
+   G_T
+   L_EQ
+   G_EQ
+   BREAK
+   CONT
+   LOOP
+   RETURN
+
+
+Rules useless in parser due to conflicts
+
+   60 printexpressions: IDENTIFIER
+   61                 | mathexp
+   62                 | function_call
+
+
+State 5 conflicts: 1 reduce/reduce
+State 13 conflicts: 1 reduce/reduce
+State 16 conflicts: 7 shift/reduce, 8 reduce/reduce
+State 25 conflicts: 7 shift/reduce, 8 reduce/reduce
+State 29 conflicts: 1 shift/reduce
+State 56 conflicts: 1 shift/reduce
+State 73 conflicts: 1 reduce/reduce
+State 76 conflicts: 1 reduce/reduce
+State 77 conflicts: 1 reduce/reduce
+State 83 conflicts: 1 shift/reduce
+State 87 conflicts: 7 shift/reduce, 8 reduce/reduce
+State 90 conflicts: 2 shift/reduce
+State 91 conflicts: 2 shift/reduce
+State 101 conflicts: 7 shift/reduce, 8 reduce/reduce
+State 108 conflicts: 7 shift/reduce, 8 reduce/reduce
+
+
+Grammar
+
+    0 $accept: prog_start $end
+
+    1 prog_start: %empty
+    2           | functions
+
+    3 functions: function
+    4          | function functions
+
+    5 function: FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
+
+    6 arguments: %empty
+    7          | argument COMMA arguments
+    8          | argument
+
+    9 argument: %empty
+   10         | NUM IDENTIFIER
+
+   11 statements: %empty
+   12           | statement statements
+
+   13 statement: declarations
+   14          | if-statement
+   15          | loops
+   16          | function_call
+   17          | pstatements
+   18          | rstatement
+
+   19 if-statement: IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement
+
+   20 else-statement: %empty
+   21               | ELSE L_CUR statements R_CUR
+
+   22 expressions: expression AND expressions
+   23            | expression OR expressions
+   24            | NOT expressions
+   25            | expression
+
+   26 expression: declaration
+   27           | function_call
+   28           | mathexp
+   29           | expression EQUALS expression
+   30           | expression NOT_EQ expression
+
+   31 function_call: function_call PERIOD
+   32              | FUNCNAME L_PAR paramaters R_PAR
+
+   33 paramaters: %empty
+   34           | IDENTIFIER COMMA paramaters
+   35           | IDENTIFIER
+
+   36 mathexp: mathexp addop term
+   37        | term
+
+   38 addop: PLUS
+   39      | MINUS
+
+   40 term: term mulop factor
+   41     | factor
+
+   42 mulop: MULTIPLY
+   43      | DIVIDE
+   44      | MODULUS
+
+   45 factor: L_PAR mathexp R_PAR
+   46       | NUM
+
+   47 loops: %empty
+   48      | loop loops
+
+   49 loop: CONTAIN expressions CONTAIN L_CUR statements R_CUR
+
+   50 declarations: %empty
+   51             | NUM declaration COMMA declarations
+   52             | NUM declaration PERIOD
+
+   53 declaration: IDENTIFIER
+   54            | IDENTIFIER EQ IDENTIFIER
+   55            | IDENTIFIER EQ function_call
+   56            | IDENTIFIER EQ mathexp
+
+   57 pstatements: OUTPUT L_PAR printexpressions R_PAR
+   58            | OUTPUT_WITH_NEWLINE L_PAR printexpressions R_PAR
+
+   59 printexpressions: expressions
+   60                 | IDENTIFIER
+   61                 | mathexp
+   62                 | function_call
+   63                 | DIGIT
+
+   64 rstatement: INPUT L_PAR IDENTIFIER R_PAR
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+NUM (258) 5 10 46 51 52
+COLON (259)
+IDENTIFIER (260) 10 34 35 53 54 55 56 60 64
+L_SQR (261)
+R_SQR (262)
+L_CUR (263) 5 19 21 49
+R_CUR (264) 5 19 21 49
+L_PAR (265) 5 32 45 57 58 64
+R_PAR (266) 5 32 45 57 58 64
+MODULUS (267) 44
+PLUS (268) 38
+MINUS (269) 39
+DIVIDE (270) 43
+MULTIPLY (271) 42
+L_T (272)
+G_T (273)
+L_EQ (274)
+G_EQ (275)
+EQ (276) 54 55 56
+AND (277) 22
+OR (278) 23
+NOT (279) 24
+EQUALS (280) 29
+NOT_EQ (281) 30
+CONTAIN (282) 19 49
+BREAK (283)
+PERIOD (284) 31 52
+CONT (285)
+LOOP (286)
+IF (287) 19
+ELSE (288) 21
+INPUT (289) 64
+OUTPUT (290) 57
+OUTPUT_WITH_NEWLINE (291) 58
+RETURN (292)
+COMMA (293) 7 34 51
+FUNCNAME (294) 5 32
+DIGIT (295) 63
+
+
+Nonterminals, with rules where they appear
+
+$accept (41)
+    on left: 0
+prog_start (42)
+    on left: 1 2, on right: 0
+functions (43)
+    on left: 3 4, on right: 2 4
+function (44)
+    on left: 5, on right: 3 4
+arguments (45)
+    on left: 6 7 8, on right: 5 7
+argument (46)
+    on left: 9 10, on right: 7 8
+statements (47)
+    on left: 11 12, on right: 5 12 19 21 49
+statement (48)
+    on left: 13 14 15 16 17 18, on right: 12
+if-statement (49)
+    on left: 19, on right: 14
+else-statement (50)
+    on left: 20 21, on right: 19
+expressions (51)
+    on left: 22 23 24 25, on right: 19 22 23 24 49 59
+expression (52)
+    on left: 26 27 28 29 30, on right: 22 23 25 29 30
+function_call (53)
+    on left: 31 32, on right: 16 27 31 55 62
+paramaters (54)
+    on left: 33 34 35, on right: 32 34
+mathexp (55)
+    on left: 36 37, on right: 28 36 45 56 61
+addop (56)
+    on left: 38 39, on right: 36
+term (57)
+    on left: 40 41, on right: 36 37 40
+mulop (58)
+    on left: 42 43 44, on right: 40
+factor (59)
+    on left: 45 46, on right: 40 41
+loops (60)
+    on left: 47 48, on right: 15 48
+loop (61)
+    on left: 49, on right: 48
+declarations (62)
+    on left: 50 51 52, on right: 13 51
+declaration (63)
+    on left: 53 54 55 56, on right: 26 51 52
+pstatements (64)
+    on left: 57 58, on right: 17
+printexpressions (65)
+    on left: 59 60 61 62 63, on right: 57 58
+rstatement (66)
+    on left: 64, on right: 18
+
+
+State 0
+
+    0 $accept: . prog_start $end
+
+    FUNCNAME  shift, and go to state 1
+
+    $default  reduce using rule 1 (prog_start)
+
+    prog_start  go to state 2
+    functions   go to state 3
+    function    go to state 4
+
+
+State 1
+
+    5 function: FUNCNAME . L_PAR arguments R_PAR NUM L_CUR statements R_CUR
+
+    L_PAR  shift, and go to state 5
+
+
+State 2
+
+    0 $accept: prog_start . $end
+
+    $end  shift, and go to state 6
+
+
+State 3
+
+    2 prog_start: functions .
+
+    $default  reduce using rule 2 (prog_start)
+
+
+State 4
+
+    3 functions: function .
+    4          | function . functions
+
+    FUNCNAME  shift, and go to state 1
+
+    $default  reduce using rule 3 (functions)
+
+    functions  go to state 7
+    function   go to state 4
+
+
+State 5
+
+    5 function: FUNCNAME L_PAR . arguments R_PAR NUM L_CUR statements R_CUR
+
+    NUM  shift, and go to state 8
+
+    R_PAR     reduce using rule 6 (arguments)
+    R_PAR     [reduce using rule 9 (argument)]
+    COMMA     reduce using rule 9 (argument)
+    $default  reduce using rule 6 (arguments)
+
+    arguments  go to state 9
+    argument   go to state 10
+
+
+State 6
+
+    0 $accept: prog_start $end .
+
+    $default  accept
+
+
+State 7
+
+    4 functions: function functions .
+
+    $default  reduce using rule 4 (functions)
+
+
+State 8
+
+   10 argument: NUM . IDENTIFIER
+
+    IDENTIFIER  shift, and go to state 11
+
+
+State 9
+
+    5 function: FUNCNAME L_PAR arguments . R_PAR NUM L_CUR statements R_CUR
+
+    R_PAR  shift, and go to state 12
+
+
+State 10
+
+    7 arguments: argument . COMMA arguments
+    8          | argument .
+
+    COMMA  shift, and go to state 13
+
+    $default  reduce using rule 8 (arguments)
+
+
+State 11
+
+   10 argument: NUM IDENTIFIER .
+
+    $default  reduce using rule 10 (argument)
+
+
+State 12
+
+    5 function: FUNCNAME L_PAR arguments R_PAR . NUM L_CUR statements R_CUR
+
+    NUM  shift, and go to state 14
+
+
+State 13
+
+    7 arguments: argument COMMA . arguments
+
+    NUM  shift, and go to state 8
+
+    R_PAR     reduce using rule 6 (arguments)
+    R_PAR     [reduce using rule 9 (argument)]
+    COMMA     reduce using rule 9 (argument)
+    $default  reduce using rule 6 (arguments)
+
+    arguments  go to state 15
+    argument   go to state 10
+
+
+State 14
+
+    5 function: FUNCNAME L_PAR arguments R_PAR NUM . L_CUR statements R_CUR
+
+    L_CUR  shift, and go to state 16
+
+
+State 15
+
+    7 arguments: argument COMMA arguments .
+
+    $default  reduce using rule 7 (arguments)
+
+
+State 16
+
+    5 function: FUNCNAME L_PAR arguments R_PAR NUM L_CUR . statements R_CUR
+
+    NUM                  shift, and go to state 17
+    CONTAIN              shift, and go to state 18
+    IF                   shift, and go to state 19
+    INPUT                shift, and go to state 20
+    OUTPUT               shift, and go to state 21
+    OUTPUT_WITH_NEWLINE  shift, and go to state 22
+    FUNCNAME             shift, and go to state 23
+
+    NUM                  [reduce using rule 47 (loops)]
+    NUM                  [reduce using rule 50 (declarations)]
+    R_CUR                reduce using rule 11 (statements)
+    R_CUR                [reduce using rule 47 (loops)]
+    R_CUR                [reduce using rule 50 (declarations)]
+    CONTAIN              [reduce using rule 47 (loops)]
+    CONTAIN              [reduce using rule 50 (declarations)]
+    IF                   [reduce using rule 47 (loops)]
+    IF                   [reduce using rule 50 (declarations)]
+    INPUT                [reduce using rule 47 (loops)]
+    INPUT                [reduce using rule 50 (declarations)]
+    OUTPUT               [reduce using rule 47 (loops)]
+    OUTPUT               [reduce using rule 50 (declarations)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 47 (loops)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 50 (declarations)]
+    FUNCNAME             [reduce using rule 47 (loops)]
+    FUNCNAME             [reduce using rule 50 (declarations)]
+    $default             reduce using rule 11 (statements)
+
+    statements     go to state 24
+    statement      go to state 25
+    if-statement   go to state 26
+    function_call  go to state 27
+    loops          go to state 28
+    loop           go to state 29
+    declarations   go to state 30
+    pstatements    go to state 31
+    rstatement     go to state 32
+
+
+State 17
+
+   51 declarations: NUM . declaration COMMA declarations
+   52             | NUM . declaration PERIOD
+
+    IDENTIFIER  shift, and go to state 33
+
+    declaration  go to state 34
+
+
+State 18
+
+   49 loop: CONTAIN . expressions CONTAIN L_CUR statements R_CUR
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+
+    expressions    go to state 38
+    expression     go to state 39
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 19
+
+   19 if-statement: IF . CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement
+
+    CONTAIN  shift, and go to state 45
+
+
+State 20
+
+   64 rstatement: INPUT . L_PAR IDENTIFIER R_PAR
+
+    L_PAR  shift, and go to state 46
+
+
+State 21
+
+   57 pstatements: OUTPUT . L_PAR printexpressions R_PAR
+
+    L_PAR  shift, and go to state 47
+
+
+State 22
+
+   58 pstatements: OUTPUT_WITH_NEWLINE . L_PAR printexpressions R_PAR
+
+    L_PAR  shift, and go to state 48
+
+
+State 23
+
+   32 function_call: FUNCNAME . L_PAR paramaters R_PAR
+
+    L_PAR  shift, and go to state 49
+
+
+State 24
+
+    5 function: FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements . R_CUR
+
+    R_CUR  shift, and go to state 50
+
+
+State 25
+
+   12 statements: statement . statements
+
+    NUM                  shift, and go to state 17
+    CONTAIN              shift, and go to state 18
+    IF                   shift, and go to state 19
+    INPUT                shift, and go to state 20
+    OUTPUT               shift, and go to state 21
+    OUTPUT_WITH_NEWLINE  shift, and go to state 22
+    FUNCNAME             shift, and go to state 23
+
+    NUM                  [reduce using rule 47 (loops)]
+    NUM                  [reduce using rule 50 (declarations)]
+    R_CUR                reduce using rule 11 (statements)
+    R_CUR                [reduce using rule 47 (loops)]
+    R_CUR                [reduce using rule 50 (declarations)]
+    CONTAIN              [reduce using rule 47 (loops)]
+    CONTAIN              [reduce using rule 50 (declarations)]
+    IF                   [reduce using rule 47 (loops)]
+    IF                   [reduce using rule 50 (declarations)]
+    INPUT                [reduce using rule 47 (loops)]
+    INPUT                [reduce using rule 50 (declarations)]
+    OUTPUT               [reduce using rule 47 (loops)]
+    OUTPUT               [reduce using rule 50 (declarations)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 47 (loops)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 50 (declarations)]
+    FUNCNAME             [reduce using rule 47 (loops)]
+    FUNCNAME             [reduce using rule 50 (declarations)]
+    $default             reduce using rule 11 (statements)
+
+    statements     go to state 51
+    statement      go to state 25
+    if-statement   go to state 26
+    function_call  go to state 27
+    loops          go to state 28
+    loop           go to state 29
+    declarations   go to state 30
+    pstatements    go to state 31
+    rstatement     go to state 32
+
+
+State 26
+
+   14 statement: if-statement .
+
+    $default  reduce using rule 14 (statement)
+
+
+State 27
+
+   16 statement: function_call .
+   31 function_call: function_call . PERIOD
+
+    PERIOD  shift, and go to state 52
+
+    $default  reduce using rule 16 (statement)
+
+
+State 28
+
+   15 statement: loops .
+
+    $default  reduce using rule 15 (statement)
+
+
+State 29
+
+   48 loops: loop . loops
+
+    CONTAIN  shift, and go to state 18
+
+    CONTAIN   [reduce using rule 47 (loops)]
+    $default  reduce using rule 47 (loops)
+
+    loops  go to state 53
+    loop   go to state 29
+
+
+State 30
+
+   13 statement: declarations .
+
+    $default  reduce using rule 13 (statement)
+
+
+State 31
+
+   17 statement: pstatements .
+
+    $default  reduce using rule 17 (statement)
+
+
+State 32
+
+   18 statement: rstatement .
+
+    $default  reduce using rule 18 (statement)
+
+
+State 33
+
+   53 declaration: IDENTIFIER .
+   54            | IDENTIFIER . EQ IDENTIFIER
+   55            | IDENTIFIER . EQ function_call
+   56            | IDENTIFIER . EQ mathexp
+
+    EQ  shift, and go to state 54
+
+    $default  reduce using rule 53 (declaration)
+
+
+State 34
+
+   51 declarations: NUM declaration . COMMA declarations
+   52             | NUM declaration . PERIOD
+
+    PERIOD  shift, and go to state 55
+    COMMA   shift, and go to state 56
+
+
+State 35
+
+   46 factor: NUM .
+
+    $default  reduce using rule 46 (factor)
+
+
+State 36
+
+   45 factor: L_PAR . mathexp R_PAR
+
+    NUM    shift, and go to state 35
+    L_PAR  shift, and go to state 36
+
+    mathexp  go to state 57
+    term     go to state 42
+    factor   go to state 43
+
+
+State 37
+
+   24 expressions: NOT . expressions
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+
+    expressions    go to state 58
+    expression     go to state 39
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 38
+
+   49 loop: CONTAIN expressions . CONTAIN L_CUR statements R_CUR
+
+    CONTAIN  shift, and go to state 59
+
+
+State 39
+
+   22 expressions: expression . AND expressions
+   23            | expression . OR expressions
+   25            | expression .
+   29 expression: expression . EQUALS expression
+   30           | expression . NOT_EQ expression
+
+    AND     shift, and go to state 60
+    OR      shift, and go to state 61
+    EQUALS  shift, and go to state 62
+    NOT_EQ  shift, and go to state 63
+
+    $default  reduce using rule 25 (expressions)
+
+
+State 40
+
+   27 expression: function_call .
+   31 function_call: function_call . PERIOD
+
+    PERIOD  shift, and go to state 52
+
+    $default  reduce using rule 27 (expression)
+
+
+State 41
+
+   28 expression: mathexp .
+   36 mathexp: mathexp . addop term
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 28 (expression)
+
+    addop  go to state 66
+
+
+State 42
+
+   37 mathexp: term .
+   40 term: term . mulop factor
+
+    MODULUS   shift, and go to state 67
+    DIVIDE    shift, and go to state 68
+    MULTIPLY  shift, and go to state 69
+
+    $default  reduce using rule 37 (mathexp)
+
+    mulop  go to state 70
+
+
+State 43
+
+   41 term: factor .
+
+    $default  reduce using rule 41 (term)
+
+
+State 44
+
+   26 expression: declaration .
+
+    $default  reduce using rule 26 (expression)
+
+
+State 45
+
+   19 if-statement: IF CONTAIN . expressions CONTAIN L_CUR statements R_CUR else-statement
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+
+    expressions    go to state 71
+    expression     go to state 39
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 46
+
+   64 rstatement: INPUT L_PAR . IDENTIFIER R_PAR
+
+    IDENTIFIER  shift, and go to state 72
+
+
+State 47
+
+   57 pstatements: OUTPUT L_PAR . printexpressions R_PAR
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 73
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+    DIGIT       shift, and go to state 74
+
+    expressions       go to state 75
+    expression        go to state 39
+    function_call     go to state 76
+    mathexp           go to state 77
+    term              go to state 42
+    factor            go to state 43
+    declaration       go to state 44
+    printexpressions  go to state 78
+
+
+State 48
+
+   58 pstatements: OUTPUT_WITH_NEWLINE L_PAR . printexpressions R_PAR
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 73
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+    DIGIT       shift, and go to state 74
+
+    expressions       go to state 75
+    expression        go to state 39
+    function_call     go to state 76
+    mathexp           go to state 77
+    term              go to state 42
+    factor            go to state 43
+    declaration       go to state 44
+    printexpressions  go to state 79
+
+
+State 49
+
+   32 function_call: FUNCNAME L_PAR . paramaters R_PAR
+
+    IDENTIFIER  shift, and go to state 80
+
+    $default  reduce using rule 33 (paramaters)
+
+    paramaters  go to state 81
+
+
+State 50
+
+    5 function: FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR .
+
+    $default  reduce using rule 5 (function)
+
+
+State 51
+
+   12 statements: statement statements .
+
+    $default  reduce using rule 12 (statements)
+
+
+State 52
+
+   31 function_call: function_call PERIOD .
+
+    $default  reduce using rule 31 (function_call)
+
+
+State 53
+
+   48 loops: loop loops .
+
+    $default  reduce using rule 48 (loops)
+
+
+State 54
+
+   54 declaration: IDENTIFIER EQ . IDENTIFIER
+   55            | IDENTIFIER EQ . function_call
+   56            | IDENTIFIER EQ . mathexp
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 82
+    L_PAR       shift, and go to state 36
+    FUNCNAME    shift, and go to state 23
+
+    function_call  go to state 83
+    mathexp        go to state 84
+    term           go to state 42
+    factor         go to state 43
+
+
+State 55
+
+   52 declarations: NUM declaration PERIOD .
+
+    $default  reduce using rule 52 (declarations)
+
+
+State 56
+
+   51 declarations: NUM declaration COMMA . declarations
+
+    NUM  shift, and go to state 17
+
+    NUM       [reduce using rule 50 (declarations)]
+    $default  reduce using rule 50 (declarations)
+
+    declarations  go to state 85
+
+
+State 57
+
+   36 mathexp: mathexp . addop term
+   45 factor: L_PAR mathexp . R_PAR
+
+    R_PAR  shift, and go to state 86
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    addop  go to state 66
+
+
+State 58
+
+   24 expressions: NOT expressions .
+
+    $default  reduce using rule 24 (expressions)
+
+
+State 59
+
+   49 loop: CONTAIN expressions CONTAIN . L_CUR statements R_CUR
+
+    L_CUR  shift, and go to state 87
+
+
+State 60
+
+   22 expressions: expression AND . expressions
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+
+    expressions    go to state 88
+    expression     go to state 39
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 61
+
+   23 expressions: expression OR . expressions
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    NOT         shift, and go to state 37
+    FUNCNAME    shift, and go to state 23
+
+    expressions    go to state 89
+    expression     go to state 39
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 62
+
+   29 expression: expression EQUALS . expression
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    FUNCNAME    shift, and go to state 23
+
+    expression     go to state 90
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 63
+
+   30 expression: expression NOT_EQ . expression
+
+    NUM         shift, and go to state 35
+    IDENTIFIER  shift, and go to state 33
+    L_PAR       shift, and go to state 36
+    FUNCNAME    shift, and go to state 23
+
+    expression     go to state 91
+    function_call  go to state 40
+    mathexp        go to state 41
+    term           go to state 42
+    factor         go to state 43
+    declaration    go to state 44
+
+
+State 64
+
+   38 addop: PLUS .
+
+    $default  reduce using rule 38 (addop)
+
+
+State 65
+
+   39 addop: MINUS .
+
+    $default  reduce using rule 39 (addop)
+
+
+State 66
+
+   36 mathexp: mathexp addop . term
+
+    NUM    shift, and go to state 35
+    L_PAR  shift, and go to state 36
+
+    term    go to state 92
+    factor  go to state 43
+
+
+State 67
+
+   44 mulop: MODULUS .
+
+    $default  reduce using rule 44 (mulop)
+
+
+State 68
+
+   43 mulop: DIVIDE .
+
+    $default  reduce using rule 43 (mulop)
+
+
+State 69
+
+   42 mulop: MULTIPLY .
+
+    $default  reduce using rule 42 (mulop)
+
+
+State 70
+
+   40 term: term mulop . factor
+
+    NUM    shift, and go to state 35
+    L_PAR  shift, and go to state 36
+
+    factor  go to state 93
+
+
+State 71
+
+   19 if-statement: IF CONTAIN expressions . CONTAIN L_CUR statements R_CUR else-statement
+
+    CONTAIN  shift, and go to state 94
+
+
+State 72
+
+   64 rstatement: INPUT L_PAR IDENTIFIER . R_PAR
+
+    R_PAR  shift, and go to state 95
+
+
+State 73
+
+   53 declaration: IDENTIFIER .
+   54            | IDENTIFIER . EQ IDENTIFIER
+   55            | IDENTIFIER . EQ function_call
+   56            | IDENTIFIER . EQ mathexp
+   60 printexpressions: IDENTIFIER .
+
+    EQ  shift, and go to state 54
+
+    R_PAR     reduce using rule 53 (declaration)
+    R_PAR     [reduce using rule 60 (printexpressions)]
+    $default  reduce using rule 53 (declaration)
+
+
+State 74
+
+   63 printexpressions: DIGIT .
+
+    $default  reduce using rule 63 (printexpressions)
+
+
+State 75
+
+   59 printexpressions: expressions .
+
+    $default  reduce using rule 59 (printexpressions)
+
+
+State 76
+
+   27 expression: function_call .
+   31 function_call: function_call . PERIOD
+   62 printexpressions: function_call .
+
+    PERIOD  shift, and go to state 52
+
+    R_PAR     reduce using rule 27 (expression)
+    R_PAR     [reduce using rule 62 (printexpressions)]
+    $default  reduce using rule 27 (expression)
+
+
+State 77
+
+   28 expression: mathexp .
+   36 mathexp: mathexp . addop term
+   61 printexpressions: mathexp .
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    R_PAR     reduce using rule 28 (expression)
+    R_PAR     [reduce using rule 61 (printexpressions)]
+    $default  reduce using rule 28 (expression)
+
+    addop  go to state 66
+
+
+State 78
+
+   57 pstatements: OUTPUT L_PAR printexpressions . R_PAR
+
+    R_PAR  shift, and go to state 96
+
+
+State 79
+
+   58 pstatements: OUTPUT_WITH_NEWLINE L_PAR printexpressions . R_PAR
+
+    R_PAR  shift, and go to state 97
+
+
+State 80
+
+   34 paramaters: IDENTIFIER . COMMA paramaters
+   35           | IDENTIFIER .
+
+    COMMA  shift, and go to state 98
+
+    $default  reduce using rule 35 (paramaters)
+
+
+State 81
+
+   32 function_call: FUNCNAME L_PAR paramaters . R_PAR
+
+    R_PAR  shift, and go to state 99
+
+
+State 82
+
+   54 declaration: IDENTIFIER EQ IDENTIFIER .
+
+    $default  reduce using rule 54 (declaration)
+
+
+State 83
+
+   31 function_call: function_call . PERIOD
+   55 declaration: IDENTIFIER EQ function_call .
+
+    PERIOD  shift, and go to state 52
+
+    PERIOD    [reduce using rule 55 (declaration)]
+    $default  reduce using rule 55 (declaration)
+
+
+State 84
+
+   36 mathexp: mathexp . addop term
+   56 declaration: IDENTIFIER EQ mathexp .
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 56 (declaration)
+
+    addop  go to state 66
+
+
+State 85
+
+   51 declarations: NUM declaration COMMA declarations .
+
+    $default  reduce using rule 51 (declarations)
+
+
+State 86
+
+   45 factor: L_PAR mathexp R_PAR .
+
+    $default  reduce using rule 45 (factor)
+
+
+State 87
+
+   49 loop: CONTAIN expressions CONTAIN L_CUR . statements R_CUR
+
+    NUM                  shift, and go to state 17
+    CONTAIN              shift, and go to state 18
+    IF                   shift, and go to state 19
+    INPUT                shift, and go to state 20
+    OUTPUT               shift, and go to state 21
+    OUTPUT_WITH_NEWLINE  shift, and go to state 22
+    FUNCNAME             shift, and go to state 23
+
+    NUM                  [reduce using rule 47 (loops)]
+    NUM                  [reduce using rule 50 (declarations)]
+    R_CUR                reduce using rule 11 (statements)
+    R_CUR                [reduce using rule 47 (loops)]
+    R_CUR                [reduce using rule 50 (declarations)]
+    CONTAIN              [reduce using rule 47 (loops)]
+    CONTAIN              [reduce using rule 50 (declarations)]
+    IF                   [reduce using rule 47 (loops)]
+    IF                   [reduce using rule 50 (declarations)]
+    INPUT                [reduce using rule 47 (loops)]
+    INPUT                [reduce using rule 50 (declarations)]
+    OUTPUT               [reduce using rule 47 (loops)]
+    OUTPUT               [reduce using rule 50 (declarations)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 47 (loops)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 50 (declarations)]
+    FUNCNAME             [reduce using rule 47 (loops)]
+    FUNCNAME             [reduce using rule 50 (declarations)]
+    $default             reduce using rule 11 (statements)
+
+    statements     go to state 100
+    statement      go to state 25
+    if-statement   go to state 26
+    function_call  go to state 27
+    loops          go to state 28
+    loop           go to state 29
+    declarations   go to state 30
+    pstatements    go to state 31
+    rstatement     go to state 32
+
+
+State 88
+
+   22 expressions: expression AND expressions .
+
+    $default  reduce using rule 22 (expressions)
+
+
+State 89
+
+   23 expressions: expression OR expressions .
+
+    $default  reduce using rule 23 (expressions)
+
+
+State 90
+
+   29 expression: expression . EQUALS expression
+   29           | expression EQUALS expression .
+   30           | expression . NOT_EQ expression
+
+    EQUALS  shift, and go to state 62
+    NOT_EQ  shift, and go to state 63
+
+    EQUALS    [reduce using rule 29 (expression)]
+    NOT_EQ    [reduce using rule 29 (expression)]
+    $default  reduce using rule 29 (expression)
+
+
+State 91
+
+   29 expression: expression . EQUALS expression
+   30           | expression . NOT_EQ expression
+   30           | expression NOT_EQ expression .
+
+    EQUALS  shift, and go to state 62
+    NOT_EQ  shift, and go to state 63
+
+    EQUALS    [reduce using rule 30 (expression)]
+    NOT_EQ    [reduce using rule 30 (expression)]
+    $default  reduce using rule 30 (expression)
+
+
+State 92
+
+   36 mathexp: mathexp addop term .
+   40 term: term . mulop factor
+
+    MODULUS   shift, and go to state 67
+    DIVIDE    shift, and go to state 68
+    MULTIPLY  shift, and go to state 69
+
+    $default  reduce using rule 36 (mathexp)
+
+    mulop  go to state 70
+
+
+State 93
+
+   40 term: term mulop factor .
+
+    $default  reduce using rule 40 (term)
+
+
+State 94
+
+   19 if-statement: IF CONTAIN expressions CONTAIN . L_CUR statements R_CUR else-statement
+
+    L_CUR  shift, and go to state 101
+
+
+State 95
+
+   64 rstatement: INPUT L_PAR IDENTIFIER R_PAR .
+
+    $default  reduce using rule 64 (rstatement)
+
+
+State 96
+
+   57 pstatements: OUTPUT L_PAR printexpressions R_PAR .
+
+    $default  reduce using rule 57 (pstatements)
+
+
+State 97
+
+   58 pstatements: OUTPUT_WITH_NEWLINE L_PAR printexpressions R_PAR .
+
+    $default  reduce using rule 58 (pstatements)
+
+
+State 98
+
+   34 paramaters: IDENTIFIER COMMA . paramaters
+
+    IDENTIFIER  shift, and go to state 80
+
+    $default  reduce using rule 33 (paramaters)
+
+    paramaters  go to state 102
+
+
+State 99
+
+   32 function_call: FUNCNAME L_PAR paramaters R_PAR .
+
+    $default  reduce using rule 32 (function_call)
+
+
+State 100
+
+   49 loop: CONTAIN expressions CONTAIN L_CUR statements . R_CUR
+
+    R_CUR  shift, and go to state 103
+
+
+State 101
+
+   19 if-statement: IF CONTAIN expressions CONTAIN L_CUR . statements R_CUR else-statement
+
+    NUM                  shift, and go to state 17
+    CONTAIN              shift, and go to state 18
+    IF                   shift, and go to state 19
+    INPUT                shift, and go to state 20
+    OUTPUT               shift, and go to state 21
+    OUTPUT_WITH_NEWLINE  shift, and go to state 22
+    FUNCNAME             shift, and go to state 23
+
+    NUM                  [reduce using rule 47 (loops)]
+    NUM                  [reduce using rule 50 (declarations)]
+    R_CUR                reduce using rule 11 (statements)
+    R_CUR                [reduce using rule 47 (loops)]
+    R_CUR                [reduce using rule 50 (declarations)]
+    CONTAIN              [reduce using rule 47 (loops)]
+    CONTAIN              [reduce using rule 50 (declarations)]
+    IF                   [reduce using rule 47 (loops)]
+    IF                   [reduce using rule 50 (declarations)]
+    INPUT                [reduce using rule 47 (loops)]
+    INPUT                [reduce using rule 50 (declarations)]
+    OUTPUT               [reduce using rule 47 (loops)]
+    OUTPUT               [reduce using rule 50 (declarations)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 47 (loops)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 50 (declarations)]
+    FUNCNAME             [reduce using rule 47 (loops)]
+    FUNCNAME             [reduce using rule 50 (declarations)]
+    $default             reduce using rule 11 (statements)
+
+    statements     go to state 104
+    statement      go to state 25
+    if-statement   go to state 26
+    function_call  go to state 27
+    loops          go to state 28
+    loop           go to state 29
+    declarations   go to state 30
+    pstatements    go to state 31
+    rstatement     go to state 32
+
+
+State 102
+
+   34 paramaters: IDENTIFIER COMMA paramaters .
+
+    $default  reduce using rule 34 (paramaters)
+
+
+State 103
+
+   49 loop: CONTAIN expressions CONTAIN L_CUR statements R_CUR .
+
+    $default  reduce using rule 49 (loop)
+
+
+State 104
+
+   19 if-statement: IF CONTAIN expressions CONTAIN L_CUR statements . R_CUR else-statement
+
+    R_CUR  shift, and go to state 105
+
+
+State 105
+
+   19 if-statement: IF CONTAIN expressions CONTAIN L_CUR statements R_CUR . else-statement
+
+    ELSE  shift, and go to state 106
+
+    $default  reduce using rule 20 (else-statement)
+
+    else-statement  go to state 107
+
+
+State 106
+
+   21 else-statement: ELSE . L_CUR statements R_CUR
+
+    L_CUR  shift, and go to state 108
+
+
+State 107
+
+   19 if-statement: IF CONTAIN expressions CONTAIN L_CUR statements R_CUR else-statement .
+
+    $default  reduce using rule 19 (if-statement)
+
+
+State 108
+
+   21 else-statement: ELSE L_CUR . statements R_CUR
+
+    NUM                  shift, and go to state 17
+    CONTAIN              shift, and go to state 18
+    IF                   shift, and go to state 19
+    INPUT                shift, and go to state 20
+    OUTPUT               shift, and go to state 21
+    OUTPUT_WITH_NEWLINE  shift, and go to state 22
+    FUNCNAME             shift, and go to state 23
+
+    NUM                  [reduce using rule 47 (loops)]
+    NUM                  [reduce using rule 50 (declarations)]
+    R_CUR                reduce using rule 11 (statements)
+    R_CUR                [reduce using rule 47 (loops)]
+    R_CUR                [reduce using rule 50 (declarations)]
+    CONTAIN              [reduce using rule 47 (loops)]
+    CONTAIN              [reduce using rule 50 (declarations)]
+    IF                   [reduce using rule 47 (loops)]
+    IF                   [reduce using rule 50 (declarations)]
+    INPUT                [reduce using rule 47 (loops)]
+    INPUT                [reduce using rule 50 (declarations)]
+    OUTPUT               [reduce using rule 47 (loops)]
+    OUTPUT               [reduce using rule 50 (declarations)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 47 (loops)]
+    OUTPUT_WITH_NEWLINE  [reduce using rule 50 (declarations)]
+    FUNCNAME             [reduce using rule 47 (loops)]
+    FUNCNAME             [reduce using rule 50 (declarations)]
+    $default             reduce using rule 11 (statements)
+
+    statements     go to state 109
+    statement      go to state 25
+    if-statement   go to state 26
+    function_call  go to state 27
+    loops          go to state 28
+    loop           go to state 29
+    declarations   go to state 30
+    pstatements    go to state 31
+    rstatement     go to state 32
+
+
+State 109
+
+   21 else-statement: ELSE L_CUR statements . R_CUR
+
+    R_CUR  shift, and go to state 110
+
+
+State 110
+
+   21 else-statement: ELSE L_CUR statements R_CUR .
+
+    $default  reduce using rule 21 (else-statement)
