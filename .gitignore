@@ -3,3 +3,4 @@
 /program_examples/*.out
 *.out
 lexer
+*.output
