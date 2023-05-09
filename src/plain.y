@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include "plain.y"
+#include "p.tab.h"
 %}
 %token NUM COLON IDENTIFIER L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
 %token MODULUS PLUS MINUS DIVIDE MULTIPLY 
@@ -27,8 +28,7 @@ arguments:  %empty {printf("arguments --> epsilon");}
             | argument  {printf("arguments --> argument");}
             ;
 
-argument:   %empty {printf("arguments --> epsilon");} 
-            | NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER");}
+argument:   NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER");}
             ;
 
 statements: %empty {printf("statements --> epsilon");}
@@ -91,38 +91,31 @@ mulop:      MULTIPLY {printf("mulop --> MULTIPLY ");}
 factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR ");}
             | DIGIT {printf("factor --> DIGIT");}
             | IDENTIFIER {printf("factor --> IDENTIFIER");}
+            | function_call
             ;
 
 declarations:  NUM declaration PERIOD
               ;
 
-declaration: IDENTIFIER
-              |IDENTIFIER COMMA declaration
-              | IDENTIFIER EQ declaration
-              | IDENTIFIER EQ function_call {printf("declaration --> IDENTIFIER EQ function_call");}
-              | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp");}
-              ;
+declaration: IDENTIFIER EQ mathexp
+            | IDENTIFIER COMMA declaration
+            | IDENTIFIER
+            ;
+
 
 function_call:  FUNCNAME L_PAR paramaters R_PAR
                 ;
 
-pstatements:  OUTPUT L_PAR printexpressions R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
-              | OUTPUT_WITH_NEWLINE L_PAR printexpressions R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
+pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
+              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
               ;
 
-printexpressions:   mathexp
-                    | IDENTIFIER {{printf("printexpressions --> IDENTIFIER");}}
-                    | function_call {printf("printexpressions --> function_call");}
-                    | DIGIT {printf("printexpressions --> DIGIT");}
-                    ;
 
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD {printf("rstatement --> INPUT L_PAR IDENTIFIER R_PAR");}
              ;
                 
 
-//==============================================
-// "....go onto define all features of your language..."
-//==============================================
+
 %%
 void main(int argc, char** argv)
 {
