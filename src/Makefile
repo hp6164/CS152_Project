@@ -5,4 +5,4 @@ all:
 	gcc -o parser p.tab.c lex.yy.c -lfl
 
 clean:
-	rm -f lex.yy.c lexer plain.y p.output
+	rm -f lex.yy.c lexer p.output p.tab.h p.tab.c

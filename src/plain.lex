@@ -18,9 +18,9 @@ COMMENT [\$].*
 
 [\n]+           {newLine++; col = 1;}
 [ \t]    	    {col += 1;}
-{COMMENT}       {col++;}
+{COMMENT}       {col += yyleng;}
 "%"             {return MODULUS; col++;}
-"num"           {return NUM; col++;}
+"num"           {return NUM; col += 3;}
 "+"		        {return PLUS; col++;}
 "-"             {return MINUS; col++;}
 "/"             {return DIVIDE; col++;}	
@@ -53,14 +53,14 @@ print           {return OUTPUT; col += 5;}
 printL          {return OUTPUT_WITH_NEWLINE; col += 6;}
 ret             {return RETURN; col += 3;}
 ","             {return COMMA; col++;}
-"list"            {return LIST; col+=4;}
+"list"          {return LIST; col+=4;}
 
-{FUNCNAME}      {return FUNCNAME; col++;}
+{FUNCNAME}      {return FUNCNAME; col += yyleng;}
 {COLONLETTER}   {{printf("Error at line %d, column %d: identifier %s cannot use variable name with colon \n",newLine, col, yytext);}}
 {NUMLETTER}     {{printf("Error at line %d, column %d: identifier %s must begin with a letter \n",newLine, col, yytext);}}
 
-{DIGIT}	        {return DIGIT; col++;}
-{VARI}          { col+=yyleng; return IDENTIFIER;}
+{DIGIT}	        {return DIGIT; col += yyleng;}
+{VARI}          {col+=yyleng; return IDENTIFIER;}
 
 .		        {printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%
