@@ -24,7 +24,7 @@ functions:  function {printf("function --> functions\n");}
             ;
 
 function:   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
-            {printf("function -->   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR\n");}
+            {printf("function --> FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR\n");}
             ;
 
 arguments:  %empty {printf("arguments --> epsilon\n");}
@@ -36,7 +36,7 @@ argument:   NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER\n");}
             ;
 
 statements: %empty {printf("statements --> epsilon\n");}
-            | statement statements {printf("statements --> statement\n");}
+            | statement statements {printf("statements --> statement statements\n");}
             ;
 
 statement:  declarations {printf("statement --> declaration\n");}
@@ -66,10 +66,10 @@ elsestatement: %empty {printf("elsestatement --> epsilon\n");}
 loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR\n");}
             ;
 
-expressions:    mathexp binop expressions {printf("expressions--> expression binop expressions\n");}
+expressions:    mathexp binop expressions {printf("expressions--> mathexp binop expressions\n");}
                 | NOT mathexp  {printf("expressions--> NOT expression\n");}
-                | CONTAIN expressions CONTAIN {printf("expressions--> L_PAR expressions R_PAR\n");} 
-                | mathexp    {printf("expressions--> expression\n");}
+                | CONTAIN expressions CONTAIN {printf("expressions--> CONTAIN expressions CONTAIN\n");} 
+                | mathexp    {printf("expressions--> mathexp\n");}
                 ;
 binop :          AND {printf("binop--> AND\n");}
                 | OR {printf("binop --> OR\n");}
@@ -91,8 +91,8 @@ mathexp:    mathexp addop term  {printf("mathexp --> mathexp addop term\n");}
             | term {printf("mathexp --> term\n");}
             ;
 
-addop:      PLUS {printf("mathexp --> PLUS\n");}
-            | MINUS {printf("mathexp --> MINUS\n");}
+addop:      PLUS {printf("addop --> PLUS\n");}
+            | MINUS {printf("addop --> MINUS\n");}
             ;
 
 term:       term mulop factor  {printf("term --> term mulop factor\n");}
@@ -111,27 +111,29 @@ factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR\n");}
             | IDENTIFIER L_SQR DIGIT R_SQR {printf("factor --> IDENTIFIER L_SQR DIGIT R_SQR\n");}
             ;
 
-declarations:  NUM declaration PERIOD  {printf("declarations --> NUM declaration PERIOD\n");}
-              ;
 
-declaration:  IDENTIFIER {printf("declarations --> IDENTIFIER\n");}
-            | IDENTIFIER EQ mathexp {printf("declarations --> IDENTIFIER EQ mathexp\n");}
-            | IDENTIFIER COMMA declaration {printf("declarations --> IDENTIFIER COMMA declaration\n");}
+declarations:  NUM declist PERIOD {printf("declarations --> NUM declist PERIOD\n");}
             ;
 
-
-function_call:  FUNCNAME L_PAR paramaters R_PAR {printf("function_call --> FUNCNAME L_PAR paramaters R_PAR\n");}
+declist:  declaration {printf("declist --> declaration\n");}
+                | declaration COMMA declist {printf("declist --> declaration COMMA declist\n");}
                 ;
 
-pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR\n");}
-              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR\n");}
+declaration:  IDENTIFIER {printf("declaration --> IDENTIFIER\n");}
+            | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp\n");}
+            ;
+
+function_call:  IDENTIFIER L_PAR paramaters R_PAR {printf("function_call --> FUNCNAME L_PAR paramaters R_PAR\n");}
+                ;
+
+pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR mathexp R_PAR PERIOD\n");}
+              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD\n");}
               ;
 
 
-rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD {printf("rstatement --> INPUT L_PAR IDENTIFIER R_PAR\n");}
+rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD {printf("rstatement --> INPUT L_PAR IDENTIFIER R_PAR PERIOD\n");}
              ;
                 
-
 
 %%
 void main(int argc, char** argv){

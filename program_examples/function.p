@@ -6,6 +6,7 @@
 {
     num a = 5, b = 6.
     print(multiplyNumbers(a, b)).
+    
 
     ret 0.
 }
