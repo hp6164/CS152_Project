@@ -8,3 +8,4 @@ src/p.tab.c
 src/p.tab.h
 src/y.output
 src/p.output
+src/parser
