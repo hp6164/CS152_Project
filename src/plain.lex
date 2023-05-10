@@ -60,7 +60,7 @@ ret             {return RETURN; col += 3;}
 {NUMLETTER}     {{printf("Error at line %d, column %d: identifier %s must begin with a letter \n",newLine, col, yytext);}}
 
 {DIGIT}	        {return DIGIT; col++;}
-{VARI}          {return IDENTIFIER; col++;}
+{VARI}          { col+=yyleng; return IDENTIFIER;}
 
 .		        {printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%
