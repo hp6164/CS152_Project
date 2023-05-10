@@ -7,11 +7,11 @@ int col = 1;
 %}
 
 
-DIGIT [0-9]
+DIGIT [0-9]+
 VARI [a-zA-z][a-zA-Z0-9]*
 NUMLETTER [0-9]+[a-zA-z]+[0-9a-zA-Z]*
 COLONLETTER (^[^:]:)+
-FUNCNAME :VARI+
+FUNCNAME [:][a-zA-Z]+
 COMMENT [\$].*
 
 %%
@@ -53,16 +53,14 @@ print           {return OUTPUT; col += 5;}
 printL          {return OUTPUT_WITH_NEWLINE; col += 6;}
 ret             {return RETURN; col += 3;}
 ","             {return COMMA; col++;}
-":"             {return COLON; col++;}
+list            {return LIST; col+=4;}
 
 {FUNCNAME}      {return FUNCNAME; col++;}
 {COLONLETTER}   {{printf("Error at line %d, column %d: identifier %s cannot use variable name with colon \n",newLine, col, yytext);}}
 {NUMLETTER}     {{printf("Error at line %d, column %d: identifier %s must begin with a letter \n",newLine, col, yytext);}}
 
-{DIGIT}+	    {return NUM; col++;}
+{DIGIT}	        {return DIGIT; col++;}
 {VARI}          {return IDENTIFIER; col++;}
 
 .		        {printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%
-
-

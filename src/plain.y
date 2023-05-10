@@ -4,6 +4,9 @@
 extern FILE* yyin;
 void yyerror(char const *msg);
 %}
+
+%define parse.error verbose
+
 %token NUM COLON IDENTIFIER L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
 %token MODULUS PLUS MINUS DIVIDE MULTIPLY 
 %token L_T G_T L_EQ G_EQ EQ AND OR NOT EQUALS NOT_EQ CONTAIN
@@ -20,46 +23,58 @@ functions:  function {printf("function --> functions\n");}
             | function functions {printf("function --> function functions\n");}
             ;
 
-function:   COLON FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
-            {printf("function -->   COLON FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR\n");}
+function:   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
+            {printf("function -->   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR\n");}
             ;
 
-arguments:  %empty {printf("arguments --> epsilon");}
-            | argument COMMA arguments {printf("arguments --> arguments COMMA arguments");}
+arguments:  %empty {printf("arguments --> epsilon\n");}
+            | argument COMMA arguments {printf("arguments --> arguments COMMA arguments\n");}
             | argument  {printf("arguments --> argument");}
             ;
 
-argument:   NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER");}
+argument:   NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER\n");}
             ;
 
-statements: %empty {printf("statements --> epsilon");}
-            | statement statements {printf("statements --> statement");}
+statements: %empty {printf("statements --> epsilon\n");}
+            | statement statements {printf("statements --> statement\n");}
             ;
 
-statement:  declarations {printf("statement --> declaration");}
-            | ifstatement{printf("statement --> ifstatement");}
-            | loop       {printf("statement --> loop");}
-            | pstatements {printf("statement --> pstatements");}
-            | rstatement {printf("statement --> rstatement");}
+statement:  declarations {printf("statement --> declaration\n");}
+            | ifstatement{printf("statement --> ifstatement\n");}
+            | loop       {printf("statement --> loop\n");}
+            | pstatements {printf("statement --> pstatements\n");}
+            | rstatement {printf("statement --> rstatement\n");}
+            | assign PERIOD {printf("statement --> assign\n");}
+            | RETURN mathexp PERIOD {printf("statement --> return\n");}
+            | array PERIOD
             ;
 
-ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement");}
+array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
+            ;
+
+assign:     IDENTIFIER EQ DIGIT 
+            | NUM IDENTIFIER EQ DIGIT 
+            | IDENTIFIER EQ mathexp 
+            | IDENTIFIER COMMA declaration
+            ;
+
+ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement\n");}
                 ;
-elsestatement: %empty {printf("elsestatement --> epsilon");}
-                | ELSE L_CUR statements R_CUR {printf("elsestatement --> ELSE L_CUR statements R_CUR");}
+elsestatement: %empty {printf("elsestatement --> epsilon\n");}
+                | ELSE L_CUR statements R_CUR {printf("elsestatement --> ELSE L_CUR statements R_CUR\n");}
                 ;
-loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR");}
+loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR\n");}
             ;
 
-expressions:    mathexp binop expressions {printf("expressions--> expression binop expressions");}
-                | NOT mathexp  {printf("expressions--> NOT expression");}
-                | CONTAIN expressions CONTAIN {printf("expressions--> L_PAR expressions R_PAR");} 
-                | mathexp    {printf("expressions--> expression");}
+expressions:    mathexp binop expressions {printf("expressions--> expression binop expressions\n");}
+                | NOT mathexp  {printf("expressions--> NOT expression\n");}
+                | CONTAIN expressions CONTAIN {printf("expressions--> L_PAR expressions R_PAR\n");} 
+                | mathexp    {printf("expressions--> expression\n");}
                 ;
-binop :          AND {printf("binop--> AND");}
-                | OR {printf("binop --> OR");}
-                | EQUALS {printf("binop --> EQUALS");}
-                | NOT_EQ {printf("binop --> NOT_EQ");}
+binop :          AND {printf("binop--> AND\n");}
+                | OR {printf("binop --> OR\n");}
+                | EQUALS {printf("binop --> EQUALS\n");}
+                | NOT_EQ {printf("binop --> NOT_EQ\n");}
                 | L_T 
                 | G_T
                 | L_EQ
@@ -67,52 +82,52 @@ binop :          AND {printf("binop--> AND");}
                 ;
 
 
-paramaters:     %empty {printf("paramaters --> epsilon");}
-                | IDENTIFIER COMMA paramaters {printf("paramaters --> IDENTIFIER COMMA paramaters");}
-                | IDENTIFIER {printf("paramaters --> IDENTIFIER");}
+paramaters:     %empty {printf("paramaters --> epsilon\n");}
+                | IDENTIFIER COMMA paramaters {printf("paramaters --> IDENTIFIER COMMA paramaters\n");}
+                | IDENTIFIER {printf("paramaters --> IDENTIFIER\n");}
                 ;
 
-mathexp:    mathexp addop term  {printf("mathexp --> mathexp addop term ");}
-            | term {printf("mathexp --> term ");}
+mathexp:    mathexp addop term  {printf("mathexp --> mathexp addop term\n");}
+            | term {printf("mathexp --> term\n");}
             ;
 
-addop:      PLUS {printf("mathexp --> PLUS ");}
-            | MINUS {printf("mathexp --> MINUS ");}
+addop:      PLUS {printf("mathexp --> PLUS\n");}
+            | MINUS {printf("mathexp --> MINUS\n");}
             ;
 
-term:       term mulop factor  {printf("term --> term mulop factor ");}
-            | factor {printf("term --> factor ");}
+term:       term mulop factor  {printf("term --> term mulop factor\n");}
+            | factor {printf("term --> factor\n");}
             ;
 
-mulop:      MULTIPLY {printf("mulop --> MULTIPLY ");}
-            | DIVIDE {printf("mulop --> DIVIDE ");}
-            | MODULUS {printf("mulop --> MODULUS ");}
+mulop:      MULTIPLY {printf("mulop --> MULTIPLY\n");}
+            | DIVIDE {printf("mulop --> DIVIDE\n");}
+            | MODULUS {printf("mulop --> MODULUS\n");}
             ;
 
-factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR ");}
-            | DIGIT {printf("factor --> DIGIT");}
-            | IDENTIFIER {printf("factor --> IDENTIFIER");}
+factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR\n");}
+            | DIGIT {printf("factor --> DIGIT\n");}
+            | IDENTIFIER {printf("factor --> IDENTIFIER\n");}
             | function_call
             ;
 
 declarations:  NUM declaration PERIOD
               ;
 
-declaration: IDENTIFIER EQ mathexp
+declaration:  IDENTIFIER
+            | IDENTIFIER EQ mathexp
             | IDENTIFIER COMMA declaration
-            | IDENTIFIER
             ;
 
 
 function_call:  FUNCNAME L_PAR paramaters R_PAR
                 ;
 
-pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
-              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR");}
+pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR\n");}
+              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR\n");}
               ;
 
 
-rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD {printf("rstatement --> INPUT L_PAR IDENTIFIER R_PAR");}
+rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD {printf("rstatement --> INPUT L_PAR IDENTIFIER R_PAR\n");}
              ;
                 
 
@@ -133,5 +148,6 @@ void main(int argc, char** argv){
 void
 yyerror (char const *s)
 {
-	  fprintf (stderr, "%s\n", s);
+      extern int newLine;
+	  fprintf (stderr, "**Error at line %d. %s\n", newLine, s);
 }
