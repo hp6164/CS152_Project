@@ -1,9 +1,11 @@
 %{
 // c code here
 #include <stdio.h>
+#include "p.tab.h"
 int newLine = 1;
 int col = 1;
 %}
+
 
 DIGIT [0-9]
 VARI [a-zA-z][a-zA-Z0-9]*
@@ -29,8 +31,8 @@ COMMENT [\$].*
 "]"		        {return R_SQR; col++;}
 "|"				{return CONTAIN; col++;}
 "="				{return EQ; col++;}
-lt				{return L_T\; col += 2;}
-gt				{return G_T\; col += 2;}
+lt				{return L_T; col += 2;}
+gt				{return G_T; col += 2;}
 leq			    {return L_EQ; col += 3;}
 geq			    {return G_EQ; col += 3;}
 AND			    {return AND; col += 3;}
@@ -63,7 +65,4 @@ ret             {return RETURN; col += 3;}
 .		        {printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%
 
-int main(void){
-    printf("Ctrl+D to quit;\n");
-    yylex();
-}
+

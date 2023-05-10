@@ -1,7 +1,8 @@
 %{
 #include <stdio.h>
-#include "plain.y"
 #include "p.tab.h"
+extern FILE* yyin;
+void yyerror(char const *msg);
 %}
 %token NUM COLON IDENTIFIER L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
 %token MODULUS PLUS MINUS DIVIDE MULTIPLY 
@@ -117,14 +118,20 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD {printf("rstatement --> INPUT L
 
 
 %%
-void main(int argc, char** argv)
-{
-    if(argc >=2)
-        yyin = fopen(argv[1], "r");
-        if(yyin == NULL)
-            yyin = stdin;
-        else
-            yyin=stdin;
+void main(int argc, char** argv){
+	if(argc >= 2){
+		yyin = fopen(argv[1], "r");
+		if(yyin == NULL)
+			yyin = stdin;
+	}else{
+		yyin = stdin;
+	}
+	yyparse();
+}
 
-        yyparse();
+/* Called by yyparse on error. */
+void
+yyerror (char const *s)
+{
+	  fprintf (stderr, "%s\n", s);
 }
