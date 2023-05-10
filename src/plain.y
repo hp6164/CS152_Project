@@ -12,7 +12,7 @@ void yyerror(char const *msg);
 %token L_T G_T L_EQ G_EQ EQ AND OR NOT EQUALS NOT_EQ CONTAIN
 %token BREAK PERIOD CONT LOOP IF ELSE INPUT OUTPUT OUTPUT_WITH_NEWLINE
 %token RETURN COMMA FUNCNAME 
-%token DIGIT
+%token DIGIT LIST
 
 %%
 prog_start: %empty {printf("prog_start --> epsilon\n");}
@@ -52,9 +52,7 @@ statement:  declarations {printf("statement --> declaration\n");}
 array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
             ;
 
-assign:     IDENTIFIER EQ DIGIT 
-            | NUM IDENTIFIER EQ DIGIT 
-            | IDENTIFIER EQ mathexp 
+assign:      IDENTIFIER EQ mathexp 
             | IDENTIFIER COMMA declaration
             ;
 
