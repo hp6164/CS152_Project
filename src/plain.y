@@ -46,14 +46,16 @@ statement:  declarations {printf("statement --> declaration\n");}
             | rstatement {printf("statement --> rstatement\n");}
             | assign PERIOD {printf("statement --> assign\n");}
             | RETURN mathexp PERIOD {printf("statement --> return\n");}
-            | array PERIOD
+            | array PERIOD {printf("statement --> array PERIOD\n");}
+            | BREAK PERIOD {printf("statement --> BREAK PERIOd\n");}
             ;
 
-array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
+array:      LIST IDENTIFIER L_SQR DIGIT R_SQR {printf("array --> LIST IDENTIFIER L_SQR DIGIT R_SQR\n");}
+            | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp {printf("array --> IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp\n");}
             ;
 
-assign:      IDENTIFIER EQ mathexp 
-            | IDENTIFIER COMMA declaration
+assign:      IDENTIFIER EQ mathexp  {printf("assign --> IDENTIFIER EQ mathexp\n");}
+            | IDENTIFIER COMMA declaration {printf("assign --> IDENTIFIER COMMA declaration\n");}
             ;
 
 ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement\n");}
@@ -73,10 +75,10 @@ binop :          AND {printf("binop--> AND\n");}
                 | OR {printf("binop --> OR\n");}
                 | EQUALS {printf("binop --> EQUALS\n");}
                 | NOT_EQ {printf("binop --> NOT_EQ\n");}
-                | L_T 
-                | G_T
-                | L_EQ
-                | G_EQ
+                | L_T {printf("binop --> L_T\n");}
+                | G_T {printf("binop --> G_T\n");}
+                | L_EQ {printf("binop --> L_EQ\n");}
+                | G_EQ {printf("binop --> G_EQ\n");}
                 ;
 
 
@@ -105,19 +107,20 @@ mulop:      MULTIPLY {printf("mulop --> MULTIPLY\n");}
 factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR\n");}
             | DIGIT {printf("factor --> DIGIT\n");}
             | IDENTIFIER {printf("factor --> IDENTIFIER\n");}
-            | function_call
+            | function_call {printf("factor --> function_call\n");}
+            | IDENTIFIER L_SQR DIGIT R_SQR {printf("factor --> IDENTIFIER L_SQR DIGIT R_SQR\n");}
             ;
 
-declarations:  NUM declaration PERIOD
+declarations:  NUM declaration PERIOD  {printf("declarations --> NUM declaration PERIOD\n");}
               ;
 
-declaration:  IDENTIFIER
-            | IDENTIFIER EQ mathexp
-            | IDENTIFIER COMMA declaration
+declaration:  IDENTIFIER {printf("declarations --> IDENTIFIER\n");}
+            | IDENTIFIER EQ mathexp {printf("declarations --> IDENTIFIER EQ mathexp\n");}
+            | IDENTIFIER COMMA declaration {printf("declarations --> IDENTIFIER COMMA declaration\n");}
             ;
 
 
-function_call:  FUNCNAME L_PAR paramaters R_PAR
+function_call:  FUNCNAME L_PAR paramaters R_PAR {printf("function_call --> FUNCNAME L_PAR paramaters R_PAR\n");}
                 ;
 
 pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR printexpressions R_PAR\n");}
@@ -147,5 +150,7 @@ void
 yyerror (char const *s)
 {
       extern int newLine;
-	  fprintf (stderr, "**Error at line %d. %s\n", newLine, s);
+      extern int col;
+
+	  fprintf (stderr, "**Error at line %d:%d. %s\n", newLine, col, s);
 }

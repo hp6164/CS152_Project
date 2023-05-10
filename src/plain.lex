@@ -17,7 +17,7 @@ COMMENT [\$].*
 %%
 
 [\n]+           {newLine++; col = 1;}
-[ \t]+    	    {col += 8;}
+[ \t]    	    {col += 1;}
 {COMMENT}       {col++;}
 "%"             {return MODULUS; col++;}
 "num"           {return NUM; col++;}
@@ -53,7 +53,7 @@ print           {return OUTPUT; col += 5;}
 printL          {return OUTPUT_WITH_NEWLINE; col += 6;}
 ret             {return RETURN; col += 3;}
 ","             {return COMMA; col++;}
-list            {return LIST; col+=4;}
+"list"            {return LIST; col+=4;}
 
 {FUNCNAME}      {return FUNCNAME; col++;}
 {COLONLETTER}   {{printf("Error at line %d, column %d: identifier %s cannot use variable name with colon \n",newLine, col, yytext);}}
