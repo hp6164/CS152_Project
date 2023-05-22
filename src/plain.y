@@ -105,30 +105,104 @@ struct CodeNode {
 %token RETURN COMMA FUNCNAME 
 %token DIGIT LIST
 
+%type  <op_val> symbol
+%type <node> functions
+%type <node> function
+%type <node> arguments
+%type <node> argument
+%type <node> statements
+%type <node> statement
+%type <node> array
+%type <node> assign
+%type <node> ifstatement
+%type <node> elsestatement
+%type <node> loop
+%type <node> expressions
+%type <node> binop
+%type <node> paramaters
+%type <node> declarations
+%type <node> declist
+%type <node> declaration
+%type <node> function_call
+%type <node> pstatements
+%type <node> mathexp
+%type <node> addop
+%type <node> term
+%type <node> mulop
+%type <node> factor
+%type <node> rstatement
+
 %%
-prog_start: %empty {printf("prog_start --> epsilon\n");}
-            | functions {printf("prog_start --> functions\n");}
+prog_start: %empty
+            {
+              CodeNode *node = new CodeNode;
+              $$ = node;
+            }
+            | functions
+              {
+                  CodeNode *node = $1;
+                  std::string code = node->code;
+              }
             ; 
 
-functions:  function {printf("function --> functions\n");}
-            | function functions {printf("function --> function functions\n");}
+functions:  function
+            {
+              $$ = $1;
+            }
+            | function functions
+              {
+                CodeNode *func  = $1;
+                CodeNode *funcs = $2;
+                std::string code = func->code + funcs->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             ;
 
 function:   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
             {printf("function --> FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR\n");}
             ;
 
-arguments:  %empty {printf("arguments --> epsilon\n");}
-            | argument COMMA arguments {printf("arguments --> arguments COMMA arguments\n");}
-            | argument  {printf("arguments --> argument");}
-            ;
+arguments:  %empty
+            { 
+              CodeNode *node = new CodeNode;
+              $$ = node;
+            }
+            | argument COMMA arguments
+              {
+                  CodeNode *arg1 = $1;
+                  CodeNode *arg2 = $3;
+                  CodeNode *node = new CodeNode;
+                  node->code = arg1->code + arg2->code;
+                  $$ = node;
+              };
+            | argument  
+            {
+              $$ = $1;
+            };
 
-argument:   NUM IDENTIFIER {printf("argument --> NUM IDENTIFIER\n");}
-            ;
+argument:   NUM IDENTIFIER
+            {
+                std::string code = 	$1 + $2;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+            };
 
-statements: %empty {printf("statements --> epsilon\n");}
-            | statement statements {printf("statements --> statement statements\n");}
-            ;
+statements: %empty 
+            {
+              CodeNode *node = new CodeNode;
+              $$ = node;
+            }
+            | statement statements
+            {
+              CodeNode *stmt1 = $1;
+              CodeNode *stmt2 = $2;
+              CodeNode *node = new CodeNode;
+              node->code = stmt1->code + stmt2->code;
+              $$ = node;
+            };
 
 statement:  declarations {printf("statement --> declaration\n");}
             | ifstatement{printf("statement --> ifstatement\n");}
@@ -151,9 +225,15 @@ assign:      IDENTIFIER EQ mathexp  {printf("assign --> IDENTIFIER EQ mathexp\n"
 
 ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement\n");}
                 ;
-elsestatement: %empty {printf("elsestatement --> epsilon\n");}
+
+elsestatement: %empty
+                {
+                  CodeNode *node = new CodeNode;
+                  $$ = node;
+                }
                 | ELSE L_CUR statements R_CUR {printf("elsestatement --> ELSE L_CUR statements R_CUR\n");}
                 ;
+
 loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR\n");}
             ;
 
@@ -177,6 +257,38 @@ paramaters:     %empty {printf("paramaters --> epsilon\n");}
                 | IDENTIFIER COMMA paramaters {printf("paramaters --> IDENTIFIER COMMA paramaters\n");}
                 | IDENTIFIER {printf("paramaters --> IDENTIFIER\n");}
                 ;
+
+declarations:  NUM declist PERIOD {printf("declarations --> NUM declist PERIOD\n");}
+            ;
+
+declist:  declaration {printf("declist --> declaration\n");}
+                | declaration COMMA declist {printf("declist --> declaration COMMA declist\n");}
+                ;
+
+declaration:  IDENTIFIER {printf("declaration --> IDENTIFIER\n");}
+            | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp\n");}
+            ;
+
+function_call:  IDENTIFIER L_PAR paramaters R_PAR {printf("function_call --> FUNCNAME L_PAR paramaters R_PAR\n");}
+                ;
+
+pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
+              {
+                  std::string ident = $3;
+                  std::string code = std::string("output(") + ident + std::string(").");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+              }
+              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD
+              {
+                  std::string ident = $3;
+                  std::string code = std::string("outputL(") + ident + std::string(").");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+              } 
+              ;
 
 mathexp:    mathexp addop term  {printf("mathexp --> mathexp addop term\n");}
             | term {printf("mathexp --> term\n");}
@@ -203,37 +315,15 @@ factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR\n");}
             ;
 
 
-declarations:  NUM declist PERIOD {printf("declarations --> NUM declist PERIOD\n");}
-            ;
-
-declist:  declaration {printf("declist --> declaration\n");}
-                | declaration COMMA declist {printf("declist --> declaration COMMA declist\n");}
-                ;
-
-declaration:  IDENTIFIER {printf("declaration --> IDENTIFIER\n");}
-            | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp\n");}
-            ;
-
-function_call:  IDENTIFIER L_PAR paramaters R_PAR {printf("function_call --> FUNCNAME L_PAR paramaters R_PAR\n");}
-                ;
-
-pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT L_PAR mathexp R_PAR PERIOD\n");}
-              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD {printf("pstatements --> OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD\n");}
-              ;
-
-
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD 
              {
-                  //  read(a).
-                  std::string ident = $3;
-                  std::string code = 
-
-                  CodeNode *node = new CodeNode;
-                  node->code = code;
-                  $$ = node;
+                std::string ident = $3;
+                std::string code = std::string("read(") + ident + std::string(").");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
              }
              ;
-
 
 
 symbol:
