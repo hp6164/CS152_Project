@@ -108,7 +108,7 @@ void print_symbol_table(void) {
 
 void verifyDigit(std::string &dig)
 {
-  if(dig <= 0)
+  if(stoi(dig) <= 0)
   {
     printf("Error, array size must be greater than 0 \n");
     exit(1);
@@ -132,16 +132,21 @@ struct CodeNode {
     std::string name;
 };
 
+%}
+
 %define parse.error verbose
 %start prog_start
-%token NUM COLON IDENTIFIER L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
+%token NUM COLON L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
 %token MODULUS PLUS MINUS DIVIDE MULTIPLY 
 %token L_T G_T L_EQ G_EQ EQ AND OR NOT EQUALS NOT_EQ CONTAIN
 %token BREAK PERIOD CONT LOOP IF ELSE INPUT OUTPUT OUTPUT_WITH_NEWLINE
-%token RETURN COMMA FUNCNAME 
-%token DIGIT LIST
+%token RETURN COMMA  
+%token LIST
 
-%type  <op_val> symbol
+%token <op_val> DIGIT 
+%token <op_val> IDENTIFIER
+%token <op_val> FUNCNAME
+%type <node> prog_start
 %type <node> functions
 %type <node> function
 %type <node> arguments
@@ -173,7 +178,6 @@ prog_start: %empty
             {
               CodeNode *node = new CodeNode;
               $$ = node;
-             
             }
             | functions
               {
@@ -233,6 +237,14 @@ arguments:  %empty
             | argument  
             {
               $$ = $1;
+            };
+
+argument:   NUM IDENTIFIER
+            {
+                std::string code = 	std::string("num") + $2;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
             };
 
 
@@ -302,8 +314,7 @@ statement:  declarations
               }
             | BREAK PERIOD 
               {
-                CodeNode* brk = $1;
-                std::string code = brk->code + std::string(".");
+                std::string code = std::string("break") + std::string(".");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -312,14 +323,13 @@ statement:  declarations
 
 array:      LIST IDENTIFIER L_SQR DIGIT R_SQR 
               {
-                std::string liz = $1;
                 std::string ident = $2;
                 if(find(ident, Array) == false)
                 {
                   add_variable_to_symbol_table(ident, temp);
-                  std::string dig = $3;
+                  std::string dig = $4;
                   verifyDigit(dig);
-                  std::string code = liz + ident + std::string("[") + dig + std::string("]");
+                  std::string code = std::string("list") + ident + std::string("[") + dig + std::string("]");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -402,7 +412,7 @@ expressions:    mathexp binop expressions
                 | CONTAIN expressions CONTAIN
                   {
                     CodeNode* exp = $2;
-                    std::string code = std::string("|") + exp->code std::string("|");
+                    std::string code = std::string("|") + exp->code + std::string("|");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
@@ -534,7 +544,7 @@ declaration:  IDENTIFIER
               }
             | IDENTIFIER EQ mathexp 
               {
-                std::string ident = $1;");}
+                std::string ident = $1;
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
                 if((find(ident, temp) == false) && !temp2)
@@ -711,7 +721,7 @@ factor:     L_PAR mathexp R_PAR
 function_call:  IDENTIFIER L_PAR paramaters R_PAR 
                 {
                   std::string ident = $1;
-                  bool temp = findFunction(std::string &ident)
+                  bool temp = findFunction(std::string ident)
                   if(temp == true)
                   {
                     CodeNode *param = $3;
@@ -719,7 +729,8 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
-                  } else
+                  } 
+                  else
                   {
                     printf("Error, Unknown function called: %s \n", ident);
                     exit(1);
@@ -750,16 +761,6 @@ paramaters:     %empty
     //VERIFY ITS  a variable and can be addeed to symbol table
                 };
 
-symbol:
-IDENTIFIER
-{
-      $$ = $1;
-}
-| DIGIT
-{
-      $$ = $1;
-}  
-
 %%
 void main(int argc, char** argv){
 	if(argc >= 2){
@@ -773,8 +774,7 @@ void main(int argc, char** argv){
 }
 
 /* Called by yyparse on error. */
-void
-yyerror (char const *s)
+void yyerror (const char *s)
 {
       extern int newLine;
       extern int col;
