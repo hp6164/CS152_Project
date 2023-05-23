@@ -30,6 +30,8 @@ struct Function {
 
 std::vector <Function> symbol_table;
 
+std::vector <std::string> keywords = {"lt", "gt", "leq", "geq", "AND", "NOT", "OR", "same", "diff", "break", "contn", "loop", "IF", "ELSE", "scan", "print", "printL", "ret"};
+
 // remember that Bison is a bottom up parser: that it parses leaf nodes first before
 // parsing the parent nodes. So control flow begins at the leaf grammar nodes
 // and propagates up to the parents.
@@ -44,15 +46,26 @@ Function *get_function() {
   return &symbol_table[last];
 }
 
+bool findFunction(std::string &ident){
+  for(int i = 0; i < symbol_table.size(); i++)
+  {
+      if(symbol_table[i].name == ident)
+      {
+        return true;
+      }
+  }
+  return false;
+}
+
 // find a particular variable using the symbol table.
 // grab the most recent function, and linear search to
 // find the symbol you are looking for.
 // you may want to extend "find" to handle different types of "Integer" vs "Array"
-bool find(std::string &value) {
+bool find(std::string &value, Type &t) {
   Function *f = get_function();
   for(int i=0; i < f->declarations.size(); i++) {
     Symbol *s = &f->declarations[i];
-    if (s->name == value) {
+    if ((s->name == value) && (s->type == t)) {
       return true;
     }
   }
@@ -63,13 +76,14 @@ bool find(std::string &value) {
 // the function name to the symbol table
 void add_function_to_symbol_table(std::string &value) {
   Function f; 
-  f.name = value; 
+  f.name = value;
+  f.type = f;
   symbol_table.push_back(f);
 }
 
 // when you see a symbol declaration inside the grammar, add
 // the symbol name as well as some type information to the symbol table
-void add_variable_to_symbol_table(std::string &value, Type t) {
+void add_variable_to_symbol_table(std::string &value, Type &t) {
   Symbol s;
   s.name = value;
   s.type = t;
@@ -89,6 +103,28 @@ void print_symbol_table(void) {
     }
   }
   printf("--------------------\n");
+}
+
+
+void verifyDigit(std::string &dig)
+{
+  if(dig <= 0)
+  {
+    printf("Error, array size must be greater than 0 \n");
+    exit(1);
+  }
+}
+
+bool checkIfReserved(std::string &ident)
+{
+  for(int i = 0; i < keywords.size(); i++)
+  {
+     if(ident == kewords[i])
+     {
+       return true;
+     }
+  }
+  return false;
 }
 
 struct CodeNode {
@@ -137,11 +173,18 @@ prog_start: %empty
             {
               CodeNode *node = new CodeNode;
               $$ = node;
+             
             }
             | functions
               {
                   CodeNode *node = $1;
                   std::string code = node->code;
+                  bool temp = findFunction("main");
+                  if(temp == false)
+                  {
+                    printf("Error, Program has no main function\n");
+                    exit(1);
+                  }
               }
             ; 
 
@@ -161,8 +204,18 @@ functions:  function
             ;
 
 function:   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
-            {printf("function --> FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR\n");}
-            ;
+            {
+              std::string fncnm = $1;
+              fncnm.erase(fncnm.begin(), fncnm.begin());
+              add_function_to_symbol_table(fncnm);
+              
+              CodeNode* args = $3;
+              CodeNode* sts = $7;
+              std::string code = std::string(":") + fncnm + std::string("(") + args->code + std::string(")") + std::string("int") + std::string("{") + sts->code + std::string("}");
+              CodeNode *node = new CodeNode;
+              node->code = code;
+              $$ = node;
+            };
 
 arguments:  %empty
             { 
@@ -182,13 +235,6 @@ arguments:  %empty
               $$ = $1;
             };
 
-argument:   NUM IDENTIFIER
-            {
-                std::string code = 	$1 + $2;
-                CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node;
-            };
 
 statements: %empty 
             {
@@ -204,73 +250,315 @@ statements: %empty
               $$ = node;
             };
 
-statement:  declarations {printf("statement --> declaration\n");}
+statement:  declarations 
+              {
+                CodeNode* dec = $1;
+                std::string code = dec->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             | ifstatement{printf("statement --> ifstatement\n");}
             | loop       {printf("statement --> loop\n");}
-            | pstatements {printf("statement --> pstatements\n");}
-            | rstatement {printf("statement --> rstatement\n");}
-            | assign PERIOD {printf("statement --> assign\n");}
-            | RETURN mathexp PERIOD {printf("statement --> return\n");}
-            | array PERIOD {printf("statement --> array PERIOD\n");}
-            | BREAK PERIOD {printf("statement --> BREAK PERIOd\n");}
+            | pstatements
+              {
+                CodeNode* pst = $1;
+                std::string code = pst->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | rstatement 
+              {
+                CodeNode* rst = $1;
+                std::string code = rst->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | assign PERIOD
+              {
+                CodeNode* assgn = $1;
+                std::string code = assgn->code + std::string(".")
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | RETURN mathexp PERIOD
+              {
+                CodeNode* mathxp = $2;
+                std::string code = std::string("ret") + mathxp->code + std::string(".");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | array PERIOD 
+              {
+                CodeNode* arr = $1;
+                std::string code = arr->code + std::string(".");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | BREAK PERIOD 
+              {
+                CodeNode* brk = $1;
+                std::string code = brk->code + std::string(".");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             ;
 
-array:      LIST IDENTIFIER L_SQR DIGIT R_SQR {printf("array --> LIST IDENTIFIER L_SQR DIGIT R_SQR\n");}
-            | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp {printf("array --> IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp\n");}
+array:      LIST IDENTIFIER L_SQR DIGIT R_SQR 
+              {
+                std::string liz = $1;
+                std::string ident = $2;
+                if(find(ident, Array) == false)
+                {
+                  add_variable_to_symbol_table(ident, temp);
+                  std::string dig = $3;
+                  verifyDigit(dig);
+                  std::string code = liz + ident + std::string("[") + dig + std::string("]");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+                else
+                {
+                  printf("Error, Array %s has already been declared\n", ident);
+                  exit(1);
+                }
+              }
+            | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp
+              {
+                std::string ident = $1
+                if(find(ident, Array) == true)
+                {
+                  std::string dig = $3
+                  CodeNode *mathx = $6
+                  std::string code = ident + std::string("[") + dig + std::string("]") + std::string("=") + mathx->code;
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+                else
+                {
+                  printf("Error,variable %s is not an array", ident);
+                  exit(1);
+                }
+                
+              }
             ;
 
-assign:      IDENTIFIER EQ mathexp  {printf("assign --> IDENTIFIER EQ mathexp\n");}
-            | IDENTIFIER COMMA declaration {printf("assign --> IDENTIFIER COMMA declaration\n");}
+assign:      IDENTIFIER EQ mathexp  
+              {
+                std::string ident = $1;
+                CodeNode* mathxp = $3;
+                std::string code = ident + std::string("=") + mathxp->code
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | IDENTIFIER COMMA declaration 
+              {
+                std::string ident = $1;
+                CodeNode* dcl = $3;
+                std::string code = ident + std::string(",") + dcl->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             ;
 
 ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement\n");}
                 ;
 
 elsestatement: %empty
-                {
-                  CodeNode *node = new CodeNode;
-                  $$ = node;
-                }
                 | ELSE L_CUR statements R_CUR {printf("elsestatement --> ELSE L_CUR statements R_CUR\n");}
                 ;
 
 loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR\n");}
             ;
 
-expressions:    mathexp binop expressions {printf("expressions--> mathexp binop expressions\n");}
-                | NOT mathexp  {printf("expressions--> NOT expression\n");}
-                | CONTAIN expressions CONTAIN {printf("expressions--> CONTAIN expressions CONTAIN\n");} 
-                | mathexp    {printf("expressions--> mathexp\n");}
-                ;
-binop :          AND {printf("binop--> AND\n");}
-                | OR {printf("binop --> OR\n");}
-                | EQUALS {printf("binop --> EQUALS\n");}
-                | NOT_EQ {printf("binop --> NOT_EQ\n");}
-                | L_T {printf("binop --> L_T\n");}
-                | G_T {printf("binop --> G_T\n");}
-                | L_EQ {printf("binop --> L_EQ\n");}
-                | G_EQ {printf("binop --> G_EQ\n");}
+expressions:    mathexp binop expressions
+                {
+                  CodeNode* mathxp = $1;
+                  CodeNode* binoperat = $2;
+                  CodeNode* expr = $3;
+                  std::string code = mathxp->code + binoperat->code + expr->code;
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+                | NOT mathexp  
+                  {
+                    CodeNode* mathxp = $2;
+                    std::string code = std::string("!") + mathxp->code;
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | CONTAIN expressions CONTAIN
+                  {
+                    CodeNode* exp = $2;
+                    std::string code = std::string("|") + exp->code std::string("|");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | mathexp 
+                  {
+                    // CodeNode* mathxp = $1;
+                    // std::string code = mathxp->code;
+                    // CodeNode *node = new CodeNode;
+                    // node->code = code;
+                    // $$ = node;
+                    $$ = $1;
+                  };
+
+binop :          AND 
+                {
+                  std::string code = std::string("AND");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+                | OR 
+                  {
+                    std::string code = std::string("OR");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | EQUALS
+                  {
+                    std::string code = std::string("==");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | NOT_EQ
+                  {
+                    std::string code = std::string("!=");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | L_T 
+                  {
+                    std::string code = std::string("<");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | G_T 
+                  {
+                    std::string code = std::string(">");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | L_EQ
+                  {
+                    std::string code = std::string("<=");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
+                | G_EQ
+                  {
+                    std::string code = std::string(">=");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  }
                 ;
 
-
-paramaters:     %empty {printf("paramaters --> epsilon\n");}
-                | IDENTIFIER COMMA paramaters {printf("paramaters --> IDENTIFIER COMMA paramaters\n");}
-                | IDENTIFIER {printf("paramaters --> IDENTIFIER\n");}
-                ;
-
-declarations:  NUM declist PERIOD {printf("declarations --> NUM declist PERIOD\n");}
+declarations:  NUM declist PERIOD 
+              {
+                CodeNode* decl = $2;
+                std::string code = std::string("num") + decl->code + std::string(".");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             ;
 
-declist:  declaration {printf("declist --> declaration\n");}
-                | declaration COMMA declist {printf("declist --> declaration COMMA declist\n");}
-                ;
+declist:  declaration 
+            {
+              // CodeNode* declr = $1;
+              // std::string code = declr->code;
+              // CodeNode *node = new CodeNode;
+              // node->code = code;
+              // $$ = node;
 
-declaration:  IDENTIFIER {printf("declaration --> IDENTIFIER\n");}
-            | IDENTIFIER EQ mathexp {printf("declaration --> IDENTIFIER EQ mathexp\n");}
+              $$ = $1
+            }
+            | declaration COMMA declist
+              {
+                CodeNode* declr = $1;
+                CodeNode* decl = $3;
+                std::string code = declr->code + std::string(",") + decl->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             ;
 
-function_call:  IDENTIFIER L_PAR paramaters R_PAR {printf("function_call --> FUNCNAME L_PAR paramaters R_PAR\n");}
-                ;
+declaration:  IDENTIFIER 
+              {
+                std::string ident = $1;
+                std::string code = ident;
+                Type temp = Integer;
+                bool temp2 = checkIfReserved(ident);
+                if((find(ident, temp) == false) && !temp2)
+                {
+                  add_variable_to_symbol_table(ident, temp);
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                } else 
+                {
+                  if(temp2)
+                  {
+                    printf("Error, Variable %s is a keyword \n", ident);
+                    exit(1);
+                  }else
+                  {
+                    printf("Error, Variable %s has already been declared \n", ident);
+                    exit(1);
+                  }
+                }
+
+              }
+            | IDENTIFIER EQ mathexp 
+              {
+                std::string ident = $1;");}
+                Type temp = Integer;
+                bool temp2 = checkIfReserved(ident);
+                if((find(ident, temp) == false) && !temp2)
+                {
+                  add_variable_to_symbol_table(ident, temp);              
+                  CodeNode* mathxp = $3;
+                  std::string code = ident + std::string("=") + mathxp->code;
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                } else 
+                {
+                  if(temp2)
+                  {
+                    printf("Error, Variable %s is a keyword \n", ident);
+                    exit(1);
+                  }else
+                  {
+                    printf("Error, Variable %s has already been declared \n", ident);
+                    exit(1);
+                  }
+                }
+              };
+
 
 pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               {
@@ -290,31 +578,6 @@ pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               } 
               ;
 
-mathexp:    mathexp addop term  {printf("mathexp --> mathexp addop term\n");}
-            | term {printf("mathexp --> term\n");}
-            ;
-
-addop:      PLUS {printf("addop --> PLUS\n");}
-            | MINUS {printf("addop --> MINUS\n");}
-            ;
-
-term:       term mulop factor  {printf("term --> term mulop factor\n");}
-            | factor {printf("term --> factor\n");}
-            ;
-
-mulop:      MULTIPLY {printf("mulop --> MULTIPLY\n");}
-            | DIVIDE {printf("mulop --> DIVIDE\n");}
-            | MODULUS {printf("mulop --> MODULUS\n");}
-            ;
-
-factor:     L_PAR mathexp R_PAR {printf("factor --> L_PAR mathexp R_PAR\n");}
-            | DIGIT {printf("factor --> DIGIT\n");}
-            | IDENTIFIER {printf("factor --> IDENTIFIER\n");}
-            | function_call {printf("factor --> function_call\n");}
-            | IDENTIFIER L_SQR DIGIT R_SQR {printf("factor --> IDENTIFIER L_SQR DIGIT R_SQR\n");}
-            ;
-
-
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD 
              {
                 std::string ident = $3;
@@ -325,6 +588,167 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
              }
              ;
 
+mathexp:    mathexp addop term  
+            {
+                CodeNode *mathx = $1
+                CodeNode *addoperator = $2;
+                CodeNode *trm = $3;
+                std::string code = mathx->code + addoperator->code + trm->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+            }
+            | term 
+              {
+                CodeNode *trm = $1;
+                std::string code = trm->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            ;
+
+addop:      PLUS 
+             {
+              std::string code = std::string("+");
+              CodeNode *node = new CodeNode;
+              node->code = code;
+              $$ = node;
+            }
+            | MINUS 
+               {
+                std::string code = std::string("-");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            ;
+
+term:       term mulop factor  
+              {
+                CodeNode *trm = $1;
+                CodeNode *muloperator = $2;
+                CodeNode *fact = $3;
+                std::string code = trm->code + muloperator->code + fact->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | factor 
+              {
+                  CodeNode *fact = $1;
+                  std::string code = fact->code;
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+            ;
+
+mulop:      MULTIPLY 
+            {
+                std::string code = std::string("*");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | DIVIDE 
+              {
+                std::string code = std::string("/");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | MODULUS 
+              {
+                std::string code = std::string("%");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            ;
+
+factor:     L_PAR mathexp R_PAR 
+            { 
+              CodeNode *mathx = $2;
+              std::string code = std::string("(") + mathx->code + std::string(")");
+              CodeNode *node = new CodeNode;
+              node->code = code;
+              $$ = node;
+            }
+            | DIGIT 
+              {
+                std::string dig = $1;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | IDENTIFIER 
+              {
+                std::string ident = $1;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | function_call 
+              {
+                CodeNode *para = $1;
+                std::string code = para->code;
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            | IDENTIFIER L_SQR DIGIT R_SQR 
+              {
+                std::string ident = $1;
+                std::string dig = $3;
+                std::string code = ident + std::string("[") + dig + std::string("]");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
+            ;
+
+function_call:  IDENTIFIER L_PAR paramaters R_PAR 
+                {
+                  std::string ident = $1;
+                  bool temp = findFunction(std::string &ident)
+                  if(temp == true)
+                  {
+                    CodeNode *param = $3;
+                    std::string code = ident + std::string("(") + param->code + std::string(")");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    $$ = node;
+                  } else
+                  {
+                    printf("Error, Unknown function called: %s \n", ident);
+                    exit(1);
+                  }
+                  
+                };
+
+
+paramaters:     %empty 
+                {
+                  $$ = node;
+                }
+                | IDENTIFIER COMMA paramaters 
+                {
+                  std::string ident = $1;
+                  CodeNode *param = $3;
+                  std::string code = ident + std::string(",") + param->code;
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+                | IDENTIFIER 
+                {
+                  std::string ident = $1;
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+    //VERIFY ITS  a variable and can be addeed to symbol table
+                };
 
 symbol:
 IDENTIFIER
