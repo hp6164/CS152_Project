@@ -135,6 +135,12 @@ struct CodeNode {
 
 %}
 
+%union {
+  struct CodeNode *node;
+  char *op_val;
+}
+
+
 %define parse.error verbose
 %start prog_start
 %token NUM COLON L_SQR R_SQR L_CUR R_CUR L_PAR R_PAR
