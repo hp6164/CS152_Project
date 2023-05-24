@@ -1,9 +1,12 @@
 %{
 // c code here
 #include <stdio.h>
+#include<string.h>
 #include "p.tab.h"
-int newLine = 1;
-int col = 1;
+    int newLine = 1;
+    int col = 1;
+    extern char *identToken;
+   extern int numberToken;
 %}
 
 
@@ -55,12 +58,34 @@ ret             {return RETURN; col += 3;}
 ","             {return COMMA; col++;}
 "list"          {return LIST; col+=4;}
 
-{FUNCNAME}      {return FUNCNAME; col += yyleng;}
+{FUNCNAME}      {
+    col += yyleng;
+   char *token = new char[yyleng];
+   strcpy(token, yytext);
+   yylval.op_val = token;
+   identToken = yytext; 
+    return FUNCNAME; 
+}
 {COLONLETTER}   {{printf("Error at line %d, column %d: identifier %s cannot use variable name with colon \n",newLine, col, yytext);}}
 {NUMLETTER}     {{printf("Error at line %d, column %d: identifier %s must begin with a letter \n",newLine, col, yytext);}}
 
-{DIGIT}	        {return DIGIT; col += yyleng;}
-{VARI}          {col+=yyleng; return IDENTIFIER;}
+{DIGIT}	        {
+  col += yyleng; 
+  char *token = new char[yyleng];
+  strcpy(token, yytext);
+  yylval.op_val = token;
+  numberToken = atoi(yytext); 
+  return DIGIT;
+}
+
+{VARI}          {
+   col += yyleng;
+   char *token = new char[yyleng];
+   strcpy(token, yytext);
+   yylval.op_val = token;
+   identToken = yytext; 
+   return IDENTIFIER;
+}
 
 .		        {printf("**Error. Unidentified symbol  %s at line %d, column %d \n", yytext, newLine, col);}
 %%

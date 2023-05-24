@@ -49,7 +49,9 @@ Function *get_function() {
 
 bool findFunction(std::string &ident){
   for(int i = 0; i < symbol_table.size(); i++)
-  {
+  {       
+     printf("symbol_table_value = %s, IDENT = %s\n", symbol_table[i].name.c_str(), ident.c_str());
+
       if(symbol_table[i].name == ident)
       {
         return true;
@@ -179,6 +181,7 @@ struct CodeNode {
 %type <node> mulop
 %type <node> factor
 %type <node> rstatement
+%type <op_val> function_ident
 
 %%
 prog_start: %empty
@@ -197,6 +200,9 @@ prog_start: %empty
                     printf("Error, Program has no main function\n");
                     exit(1);
                   }
+                  node->code = code;
+                  $$ = node;
+                  printf("%s\n", code.c_str());
               }
             ; 
 
@@ -215,11 +221,17 @@ functions:  function
               }
             ;
 
-function:   FUNCNAME L_PAR arguments R_PAR NUM L_CUR statements R_CUR
+function_ident: FUNCNAME {
+  // add the function to the symbol table.
+  std::string f = $1;
+  std::string fncnm = f.substr(1);
+  add_function_to_symbol_table(fncnm);
+  $$ = $1;
+}
+
+function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
             {
               std::string fncnm = $1;
-              fncnm.erase(fncnm.begin(), fncnm.begin());
-              add_function_to_symbol_table(fncnm);
               
               CodeNode* args = $3;
               CodeNode* sts = $7;
@@ -527,6 +539,8 @@ declist:  declaration
 
 declaration:  IDENTIFIER 
               {
+                //printf(".%s\n", IDENTIFIER);
+                //string code = (". %s", IDENTIFIER)
                 std::string ident = $1;
                 std::string code = ident;
                 Type temp = Integer;
@@ -755,7 +769,7 @@ paramaters:     %empty
                 {
                   std::string ident = $1;
                   CodeNode *param = $3;
-                  std::string code = ident + std::string(",") + param->code;
+                  std::string code = ident + std::string(",") + param->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
