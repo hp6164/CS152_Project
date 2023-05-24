@@ -603,7 +603,7 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
 
 mathexp:    mathexp addop term  
             {
-                CodeNode *mathx = $1
+                CodeNode *mathx = $1;
                 CodeNode *addoperator = $2;
                 CodeNode *trm = $3;
                 std::string code = mathx->code + addoperator->code + trm->code;
@@ -764,7 +764,7 @@ paramaters:     %empty
                 };
 
 %%
-void main(int argc, char** argv){
+int main(int argc, char** argv){
 	if(argc >= 2){
 		yyin = fopen(argv[1], "r");
 		if(yyin == NULL)
@@ -773,6 +773,8 @@ void main(int argc, char** argv){
 		yyin = stdin;
 	}
 	yyparse();
+
+  return 0;
 }
 
 /* Called by yyparse on error. */
