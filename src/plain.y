@@ -311,7 +311,7 @@ statement:  declarations
             | assign PERIOD
               {
                 CodeNode* assgn = $1;
-                std::string code = assgn->code + std::string(".");
+                std::string code = assgn->code + std::string(".") + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -319,7 +319,7 @@ statement:  declarations
             | RETURN mathexp PERIOD
               {
                 CodeNode* mathxp = $2;
-                std::string code = std::string("ret") + mathxp->code + std::string(".");
+                std::string code = std::string("ret ") + mathxp->code + std::string(".") + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -350,7 +350,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
                   verifyDigit(dig);
-                  std::string code = std::string("list") + ident + std::string("[") + dig + std::string("]");
+                  std::string code = std::string("list") + ident + std::string("[") + dig + std::string("]") + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -368,7 +368,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 {
                   std::string dig = $3;
                   CodeNode *mathx = $6;
-                  std::string code = ident + std::string("[") + dig + std::string("]") + std::string("=") + mathx->code;
+                  std::string code = ident + std::string("[") + dig + std::string("]") + std::string("=") + mathx->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -509,7 +509,7 @@ binop :          AND
 declarations:  NUM declist PERIOD 
               {
                 CodeNode* decl = $2;
-                std::string code = std::string("num") + decl->code + std::string(".");
+                std::string code = std::string("num") + decl->code + std::string(".") + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -574,7 +574,7 @@ declaration:  IDENTIFIER
                 {
                   add_variable_to_symbol_table(ident, temp);              
                   CodeNode* mathxp = $3;
-                  std::string code = ident + std::string("=") + mathxp->code;
+                  std::string code = ident + std::string("=") + mathxp->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -596,7 +596,7 @@ declaration:  IDENTIFIER
 pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               {
                   CodeNode* mathxp = $3;
-                  std::string code = std::string("output(") + mathxp->code + std::string(").");
+                  std::string code = std::string("output(") + mathxp->code + std::string(").") + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -604,7 +604,7 @@ pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD
               {
                   CodeNode* mathxp = $3;
-                  std::string code = std::string("outputL(") + mathxp->code + std::string(").");
+                  std::string code = std::string("outputL(") + mathxp->code + std::string(").") + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -614,7 +614,7 @@ pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD 
              {
                 std::string ident = $3;
-                std::string code = std::string("read(") + ident + std::string(").");
+                std::string code = std::string("read(") + ident + std::string(").") + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
