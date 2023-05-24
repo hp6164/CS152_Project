@@ -581,16 +581,16 @@ declaration:  IDENTIFIER
 
 pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               {
-                  std::string ident = $3;
-                  std::string code = std::string("output(") + ident + std::string(").");
+                  CodeNode* mathxp = $3;
+                  std::string code = std::string("output(") + mathxp->code + std::string(").");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
               }
               | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD
               {
-                  std::string ident = $3;
-                  std::string code = std::string("outputL(") + ident + std::string(").");
+                  CodeNode* mathxp = $3;
+                  std::string code = std::string("outputL(") + mathxp->code + std::string(").");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
