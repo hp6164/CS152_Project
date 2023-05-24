@@ -30,7 +30,8 @@ struct Function {
 
 std::vector <Function> symbol_table;
 
-std::vector <std::string> keywords = {"lt", "gt", "leq", "geq", "AND", "NOT", "OR", "same", "diff", "break", "contn", "loop", "IF", "ELSE", "scan", "print", "printL", "ret"};
+const int keySIZE = 18;
+std::string keywords[keySIZE] = {"lt", "gt", "leq", "geq", "AND", "NOT", "OR", "same", "diff", "break", "contn", "loop", "IF", "ELSE", "scan", "print", "printL", "ret"};
 
 // remember that Bison is a bottom up parser: that it parses leaf nodes first before
 // parsing the parent nodes. So control flow begins at the leaf grammar nodes
@@ -61,7 +62,7 @@ bool findFunction(std::string &ident){
 // grab the most recent function, and linear search to
 // find the symbol you are looking for.
 // you may want to extend "find" to handle different types of "Integer" vs "Array"
-bool find(std::string &value, Type &t) {
+bool find(std::string &value, Type t) {
   Function *f = get_function();
   for(int i=0; i < f->declarations.size(); i++) {
     Symbol *s = &f->declarations[i];
@@ -77,7 +78,6 @@ bool find(std::string &value, Type &t) {
 void add_function_to_symbol_table(std::string &value) {
   Function f; 
   f.name = value;
-  f.type = f;
   symbol_table.push_back(f);
 }
 
@@ -108,7 +108,8 @@ void print_symbol_table(void) {
 
 void verifyDigit(std::string &dig)
 {
-  if(stoi(dig) <= 0)
+  int digit = std::stoi(dig);
+  if(digit <= 0)
   {
     printf("Error, array size must be greater than 0 \n");
     exit(1);
@@ -117,9 +118,9 @@ void verifyDigit(std::string &dig)
 
 bool checkIfReserved(std::string &ident)
 {
-  for(int i = 0; i < keywords.size(); i++)
+  for(int i = 0; i < keySIZE; i++)
   {
-     if(ident == kewords[i])
+     if(ident == keywords[i])
      {
        return true;
      }
@@ -183,7 +184,8 @@ prog_start: %empty
               {
                   CodeNode *node = $1;
                   std::string code = node->code;
-                  bool temp = findFunction("main");
+                  std::string t = "main";
+                  bool temp = findFunction(t);
                   if(temp == false)
                   {
                     printf("Error, Program has no main function\n");
@@ -291,7 +293,7 @@ statement:  declarations
             | assign PERIOD
               {
                 CodeNode* assgn = $1;
-                std::string code = assgn->code + std::string(".")
+                std::string code = assgn->code + std::string(".");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -324,9 +326,10 @@ statement:  declarations
 array:      LIST IDENTIFIER L_SQR DIGIT R_SQR 
               {
                 std::string ident = $2;
+                Type t = Array;
                 if(find(ident, Array) == false)
                 {
-                  add_variable_to_symbol_table(ident, temp);
+                  add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
                   verifyDigit(dig);
                   std::string code = std::string("list") + ident + std::string("[") + dig + std::string("]");
@@ -336,17 +339,17 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 }
                 else
                 {
-                  printf("Error, Array %s has already been declared\n", ident);
+                  printf("Error, Array %s has already been declared\n", ident.c_str());
                   exit(1);
                 }
               }
             | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp
               {
-                std::string ident = $1
+                std::string ident = $1;
                 if(find(ident, Array) == true)
                 {
-                  std::string dig = $3
-                  CodeNode *mathx = $6
+                  std::string dig = $3;
+                  CodeNode *mathx = $6;
                   std::string code = ident + std::string("[") + dig + std::string("]") + std::string("=") + mathx->code;
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -354,7 +357,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 }
                 else
                 {
-                  printf("Error,variable %s is not an array", ident);
+                  printf("Error,variable %s is not an array", ident.c_str());
                   exit(1);
                 }
                 
@@ -365,7 +368,7 @@ assign:      IDENTIFIER EQ mathexp
               {
                 std::string ident = $1;
                 CodeNode* mathxp = $3;
-                std::string code = ident + std::string("=") + mathxp->code
+                std::string code = ident + std::string("=") + mathxp->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -384,7 +387,7 @@ assign:      IDENTIFIER EQ mathexp
 ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement\n");}
                 ;
 
-elsestatement: %empty
+elsestatement: %empty {printf("elsestatement --> epsilon\n");}
                 | ELSE L_CUR statements R_CUR {printf("elsestatement --> ELSE L_CUR statements R_CUR\n");}
                 ;
 
@@ -503,7 +506,7 @@ declist:  declaration
               // node->code = code;
               // $$ = node;
 
-              $$ = $1
+              $$ = $1;
             }
             | declaration COMMA declist
               {
@@ -532,11 +535,11 @@ declaration:  IDENTIFIER
                 {
                   if(temp2)
                   {
-                    printf("Error, Variable %s is a keyword \n", ident);
+                    printf("Error, Variable %s is a keyword \n", ident.c_str());
                     exit(1);
                   }else
                   {
-                    printf("Error, Variable %s has already been declared \n", ident);
+                    printf("Error, Variable %s has already been declared \n", ident.c_str());
                     exit(1);
                   }
                 }
@@ -559,11 +562,11 @@ declaration:  IDENTIFIER
                 {
                   if(temp2)
                   {
-                    printf("Error, Variable %s is a keyword \n", ident);
+                    printf("Error, Variable %s is a keyword \n", ident.c_str());
                     exit(1);
                   }else
                   {
-                    printf("Error, Variable %s has already been declared \n", ident);
+                    printf("Error, Variable %s has already been declared \n", ident.c_str());
                     exit(1);
                   }
                 }
@@ -687,14 +690,14 @@ factor:     L_PAR mathexp R_PAR
             }
             | DIGIT 
               {
-                std::string dig = $1;
+                std::string code = $1;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
               }
             | IDENTIFIER 
               {
-                std::string ident = $1;
+                std::string code = $1;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -721,7 +724,7 @@ factor:     L_PAR mathexp R_PAR
 function_call:  IDENTIFIER L_PAR paramaters R_PAR 
                 {
                   std::string ident = $1;
-                  bool temp = findFunction(std::string ident)
+                  bool temp = findFunction(ident);
                   if(temp == true)
                   {
                     CodeNode *param = $3;
@@ -732,7 +735,7 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                   } 
                   else
                   {
-                    printf("Error, Unknown function called: %s \n", ident);
+                    printf("Error, Unknown function called: %s \n", ident.c_str());
                     exit(1);
                   }
                   
@@ -741,7 +744,6 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
 
 paramaters:     %empty 
                 {
-                  $$ = node;
                 }
                 | IDENTIFIER COMMA paramaters 
                 {
@@ -754,7 +756,7 @@ paramaters:     %empty
                 }
                 | IDENTIFIER 
                 {
-                  std::string ident = $1;
+                  std::string code = $1;
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
