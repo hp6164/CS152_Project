@@ -15,6 +15,7 @@ extern int currLine;
 char *identToken;
 int numberToken;
 int  count_names = 0;
+int tempcounter = 0;
 
 enum Type { Integer, Array };
 
@@ -128,6 +129,15 @@ bool checkIfReserved(std::string &ident)
      }
   }
   return false;
+}
+
+std::string createTempVariable()
+{
+  std::string t = std::string("_temp")+std::to_string(tempcounter);
+  Type t1 = Integer;
+  add_variable_to_symbol_table(t, t1);
+  tempcounter++;
+  return t;
 }
 
 struct CodeNode {
@@ -506,10 +516,10 @@ binop :          AND
                   }
                 ;
 
-declarations:  NUM declist PERIOD 
+declarations:  NUM declist PERIOD
               {
                 CodeNode* decl = $2;
-                std::string code = std::string("num") + decl->code + std::string(".") + std::string("\n");
+                std::string code = std::string(". ") + decl->code +  std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -574,7 +584,7 @@ declaration:  IDENTIFIER
                 {
                   add_variable_to_symbol_table(ident, temp);              
                   CodeNode* mathxp = $3;
-                  std::string code = ident + std::string("=") + mathxp->code + std::string("\n");
+                  std::string code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
