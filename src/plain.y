@@ -360,7 +360,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
                   verifyDigit(dig);
-                  std::string code = std::string("list") + ident + std::string("[") + dig + std::string("]") + std::string("\n");
+                  std::string code = std::string(".[] ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -372,13 +372,13 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 }
               }
             | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp
-              {
+              { a[] = mathxp
                 std::string ident = $1;
                 if(find(ident, Array) == true)
                 {
                   std::string dig = $3;
                   CodeNode *mathx = $6;
-                  std::string code = ident + std::string("[") + dig + std::string("]") + std::string("=") + mathx->code + std::string("\n");
+                  std::string code = std::string("=[] ") + ident + std::string(", ") + dig + std::string(", ") + mathxp->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -396,7 +396,7 @@ assign:      IDENTIFIER EQ mathexp
               {
                 std::string ident = $1;
                 CodeNode* mathxp = $3;
-                std::string code = ident + std::string("=") + mathxp->code;
+                std::string code = std::string("=") + ident + std::string(", ") + mathxp->code + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -405,7 +405,7 @@ assign:      IDENTIFIER EQ mathexp
               {
                 std::string ident = $1;
                 CodeNode* dcl = $3;
-                std::string code = ident + std::string(",") + dcl->code;
+                std::string code = std::string("=") + ident + std::string(", ") + dcl->code + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -602,11 +602,15 @@ declaration:  IDENTIFIER
                 }
               };
 
+// .< dst	read a value into dst from standard in
+// .[]< dst, index	read a value into dst[index] from standard in
+// .> src	write the value of src into standard out
+// .[]> src, index	write the value of src[index] into standard out
 
 pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               {
                   CodeNode* mathxp = $3;
-                  std::string code = std::string("output(") + mathxp->code + std::string(").") + std::string("\n");
+                  std::string code = std::string(".> ") + mathxp->code std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -614,7 +618,7 @@ pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
               | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD
               {
                   CodeNode* mathxp = $3;
-                  std::string code = std::string("outputL(") + mathxp->code + std::string(").") + std::string("\n");
+                  std::string code = std::string(".>") + mathxp->code + std::string("\n\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -624,7 +628,7 @@ pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD 
              {
                 std::string ident = $3;
-                std::string code = std::string("read(") + ident + std::string(").") + std::string("\n");
+                std::string code = std::string(".< ") + ident + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -653,14 +657,14 @@ mathexp:    mathexp addop term
 
 addop:      PLUS 
              {
-              std::string code = std::string("+");
+              std::string code = std::string("+ ");
               CodeNode *node = new CodeNode;
               node->code = code;
               $$ = node;
             }
             | MINUS 
                {
-                std::string code = std::string("-");
+                std::string code = std::string("- ");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -689,21 +693,21 @@ term:       term mulop factor
 
 mulop:      MULTIPLY 
             {
-                std::string code = std::string("*");
+                std::string code = std::string("* ");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
               }
             | DIVIDE 
               {
-                std::string code = std::string("/");
+                std::string code = std::string("/ ");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
               }
             | MODULUS 
               {
-                std::string code = std::string("%");
+                std::string code = std::string("% ");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -758,7 +762,7 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                   if(temp == true)
                   {
                     CodeNode *param = $3;
-                    std::string code = ident + std::string("(") + param->code + std::string(")");
+                    std::string code = std::string("call ") + ident + std::string("(") + param->code + std::string(")");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
