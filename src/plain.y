@@ -246,10 +246,11 @@ function_ident: FUNCNAME {
 
 function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
             {
-              std::string fncnm = $1;
+              std::string fncnm = $1 + 1;
               
               CodeNode* args = $3;
               CodeNode* sts = $7;
+              
               std::string code = std::string("func ") + fncnm + std::string("\n") + args->code + sts->code + std::string("endfunc\n");
               CodeNode *node = new CodeNode;
               node->code = code;
@@ -405,7 +406,10 @@ assign:      IDENTIFIER EQ mathexp
                 CodeNode* mathxp = $3;
                 std::string code,temp3 ;
                 int index;
-                if(mathxp->code.find("_temp") != std::string::npos)
+                code += mathxp->code;
+                code += std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n");
+
+                /*if(mathxp->code.find("_temp") != std::string::npos)
                   {
                     index = mathxp->code.find("_temp");
                     temp3 = mathxp->code.substr(index, mathxp->code.size() -1);
@@ -413,10 +417,9 @@ assign:      IDENTIFIER EQ mathexp
                     index = mathxp->code.find("=");
                     temp3 = mathxp->code.substr(0, index);
                     printf("Result:%s",temp3.c_str());
-                    code = decl_temp_code(temp3) +  std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n") ;
+                    code = decl_temp_code(temp3) +  std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n") ;
                   }else{
-                    code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
-                  }
+                  }*/
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -711,10 +714,7 @@ mathexp:    mathexp addop term
             | term 
               {
                 CodeNode *trm = $1;
-                std::string code = trm->code;
-                CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node;
+                $$ = trm;
               }
             ;
 
@@ -747,10 +747,7 @@ term:       term mulop factor
             | factor 
               {
                   CodeNode *fact = $1;
-                  std::string code = fact->code;
-                  CodeNode *node = new CodeNode;
-                  node->code = code;
-                  $$ = node;
+                  $$ = fact;
                 }
             ;
 
@@ -794,9 +791,10 @@ factor:     L_PAR mathexp R_PAR
               }
             | IDENTIFIER 
               {
-                std::string code = $1;
+                std::string name = $1;
                 CodeNode *node = new CodeNode;
-                node->code = code;
+                //node->code = code;
+                node->name = name;
                 $$ = node;
               }
             | function_call 
@@ -814,6 +812,7 @@ factor:     L_PAR mathexp R_PAR
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
+                node->name = temp;
                 node->code = code;
                 $$ = node;
               }

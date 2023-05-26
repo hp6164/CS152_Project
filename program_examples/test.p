@@ -2,6 +2,7 @@
 {
     list a[ 3 ].
     num c.
-    c = a[ 3 ].
+    c = a[ 2 ].
+    c = a + b.
    
 }
