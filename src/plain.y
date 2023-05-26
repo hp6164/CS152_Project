@@ -406,8 +406,8 @@ assign:      IDENTIFIER EQ mathexp
                 CodeNode* mathxp = $3;
                 std::string code,temp3 ;
                 int index;
-                code += mathxp->code;
-                code += std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n");
+                //code += mathxp->code;
+                code += std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
 
                 /*if(mathxp->code.find("_temp") != std::string::npos)
                   {

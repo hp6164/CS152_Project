@@ -1,9 +1,10 @@
 :main () num
 {
-    num a = 100.
-    num b = 50.
-    num c.
+   num a.
+   num b.
 
-    $ Addition, answer is 150, since 100+50 = 150
-    c = a * 7.
+   a = 10.
+    b = 30.
+    a = 133.
+    b = 347.
 }
