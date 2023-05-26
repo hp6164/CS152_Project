@@ -1,8 +1,9 @@
 :main () num
 {
-    list a[ 3 ].
+    num a = 100.
+    num b = 50.
     num c.
-    c = a[ 2 ].
-    c = a + b.
-   
+
+    $ Addition, answer is 150, since 100+50 = 150
+    c = a+b.
 }

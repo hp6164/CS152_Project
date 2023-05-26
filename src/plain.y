@@ -606,7 +606,6 @@ declaration:  IDENTIFIER
                 std::string code;
                 std::string temp3;
                 int index;
-                printf("here");
                 if((find(ident, temp) == false) && !temp2)
                 {
                   add_variable_to_symbol_table(ident, temp);              
@@ -617,10 +616,8 @@ declaration:  IDENTIFIER
                     temp3 = mathxp->code.substr(index, mathxp->code.size() -1);
                     index = mathxp->code.find(" ");
                     temp3 = mathxp->code.substr(0, index);
-                    printf("Result:%s",temp3.c_str());
                     code = decl_temp_code(temp3);
                   }else{
-                    printf("Result:%s",temp3.c_str());
                     code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
                   }
                   CodeNode *node = new CodeNode;
@@ -706,7 +703,9 @@ mathexp:    mathexp addop term
                 CodeNode *mathx = $1;
                 CodeNode *addoperator = $2;
                 CodeNode *trm = $3;
-                std::string code = mathx->code + addoperator->code + trm->code;
+                std::string temp = create_Temp();
+                std::string code = decl_temp_code(temp);
+                code += addoperator->code +  temp + std::string(", ") + trm->name + mathxp->name;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -739,7 +738,9 @@ term:       term mulop factor
                 CodeNode *trm = $1;
                 CodeNode *muloperator = $2;
                 CodeNode *fact = $3;
-                std::string code = trm->code + muloperator->code + fact->code;
+                std::string temp = create_Temp();
+                std::string code = decl_temp_code(temp);
+                code += trm->code + muloperator->code + fact->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
