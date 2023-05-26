@@ -16,6 +16,7 @@ char *identToken;
 int numberToken;
 int  count_names = 0;
 int tempcounter = 0;
+std::string tempForArrange;
 
 enum Type { Integer, Array };
 
@@ -402,7 +403,20 @@ assign:      IDENTIFIER EQ mathexp
               {
                 std::string ident = $1;
                 CodeNode* mathxp = $3;
-                std::string code = std::string("=") + ident + std::string(", ") + mathxp->code + std::string("\n");
+                std::string code,temp3 ;
+                int index;
+                if(mathxp->code.find("_temp") != std::string::npos)
+                  {
+                    index = mathxp->code.find("_temp");
+                    temp3 = mathxp->code.substr(index, mathxp->code.size() -1);
+                    printf("Here:%s;", temp3.c_str());
+                    index = mathxp->code.find("=");
+                    temp3 = mathxp->code.substr(0, index);
+                    printf("Result:%s",temp3.c_str());
+                    code = decl_temp_code(temp3) +  std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n") ;
+                  }else{
+                    code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
+                  }
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -586,11 +600,26 @@ declaration:  IDENTIFIER
                 std::string ident = $1;
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
+                std::string code;
+                std::string temp3;
+                int index;
+                printf("here");
                 if((find(ident, temp) == false) && !temp2)
                 {
                   add_variable_to_symbol_table(ident, temp);              
                   CodeNode* mathxp = $3;
-                  std::string code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
+                  if(mathxp->code.find("_temp") != std::string::npos)
+                  {
+                    index = mathxp->code.find("_temp");
+                    temp3 = mathxp->code.substr(index, mathxp->code.size() -1);
+                    index = mathxp->code.find(" ");
+                    temp3 = mathxp->code.substr(0, index);
+                    printf("Result:%s",temp3.c_str());
+                    code = decl_temp_code(temp3);
+                  }else{
+                    printf("Result:%s",temp3.c_str());
+                    code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
+                  }
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
