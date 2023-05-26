@@ -51,7 +51,7 @@ Function *get_function() {
 bool findFunction(std::string &ident){
   for(int i = 0; i < symbol_table.size(); i++)
   {       
-     printf("symbol_table_value = %s, IDENT = %s\n", symbol_table[i].name.c_str(), ident.c_str());
+     //printf("symbol_table_value = %s, IDENT = %s\n", symbol_table[i].name.c_str(), ident.c_str());
 
       if(symbol_table[i].name == ident)
       {
@@ -131,13 +131,17 @@ bool checkIfReserved(std::string &ident)
   return false;
 }
 
-std::string createTempVariable()
+std::string create_Temp()
 {
-  std::string t = std::string("_temp")+std::to_string(tempcounter);
-  Type t1 = Integer;
-  add_variable_to_symbol_table(t, t1);
-  tempcounter++;
+  static int num = 0;
+  std::string t = std::string("_temp")+std::to_string(num);
+  num ++;
   return t;
+}
+
+std::string decl_temp_code(std::string &temp)
+{
+  return std::string(". ") + temp + std::string("\n");
 }
 
 struct CodeNode {
@@ -245,7 +249,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
               
               CodeNode* args = $3;
               CodeNode* sts = $7;
-              std::string code = std::string(":") + fncnm + std::string("(") + args->code + std::string(")") + std::string("int") + std::string("{") + sts->code + std::string("}");
+              std::string code = std::string("func ") + fncnm + std::string("\n") + args->code + sts->code + std::string("endfunc\n");
               CodeNode *node = new CodeNode;
               node->code = code;
               $$ = node;
@@ -261,7 +265,7 @@ arguments:  %empty
                   CodeNode *arg1 = $1;
                   CodeNode *arg2 = $3;
                   CodeNode *node = new CodeNode;
-                  node->code = arg1->code + arg2->code;
+                  node->code = arg1->code + std::string("\n") + arg2->code;
                   $$ = node;
               };
             | argument  
@@ -271,7 +275,8 @@ arguments:  %empty
 
 argument:   NUM IDENTIFIER
             {
-                std::string code = 	std::string("num") + $2;
+                std::string ident = $2;
+                std::string code = 	std::string(". ") + ident;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -321,7 +326,7 @@ statement:  declarations
             | assign PERIOD
               {
                 CodeNode* assgn = $1;
-                std::string code = assgn->code + std::string(".") + std::string("\n");
+                std::string code = assgn->code  + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -337,7 +342,7 @@ statement:  declarations
             | array PERIOD 
               {
                 CodeNode* arr = $1;
-                std::string code = arr->code + std::string(".");
+                std::string code = arr->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -360,6 +365,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
                   verifyDigit(dig);
+                  //printf("Dig:%s;",dig.c_str());
                   std::string code = std::string(".[] ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -370,15 +376,15 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                   printf("Error, Array %s has already been declared\n", ident.c_str());
                   exit(1);
                 }
-              }
+              } 
             | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp
-              { a[] = mathxp
+              { 
                 std::string ident = $1;
                 if(find(ident, Array) == true)
                 {
                   std::string dig = $3;
                   CodeNode *mathx = $6;
-                  std::string code = std::string("=[] ") + ident + std::string(", ") + dig + std::string(", ") + mathxp->code + std::string("\n");
+                  std::string code = std::string("[]= ") + ident + std::string(", ") + dig + std::string(", ") + mathx->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -602,33 +608,61 @@ declaration:  IDENTIFIER
                 }
               };
 
-// .< dst	read a value into dst from standard in
-// .[]< dst, index	read a value into dst[index] from standard in
-// .> src	write the value of src into standard out
-// .[]> src, index	write the value of src[index] into standard out
 
-pstatements:  OUTPUT L_PAR mathexp R_PAR PERIOD
+pstatements:  OUTPUT L_PAR IDENTIFIER R_PAR PERIOD
               {
-                  CodeNode* mathxp = $3;
-                  std::string code = std::string(".> ") + mathxp->code std::string("\n");
+                  std::string ident = $3;
+                  std::string code = std::string(".> ") + ident + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
               }
-              | OUTPUT_WITH_NEWLINE L_PAR mathexp R_PAR PERIOD
+              |
+              OUTPUT L_PAR IDENTIFIER L_SQR DIGIT R_SQR R_PAR PERIOD
               {
-                  CodeNode* mathxp = $3;
-                  std::string code = std::string(".>") + mathxp->code + std::string("\n\n");
+                  std::string ident = $3;
+                  std::string dig = $5;
+                  std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
-              } 
+              }
+              | OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER R_PAR PERIOD
+              {
+                  std::string ident = $3;
+                  std::string code = std::string(".>") + ident + std::string("\n\n");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+              }
+              |
+               OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER L_SQR DIGIT R_SQR R_PAR PERIOD
+               {
+                  std::string ident = $3;
+                  std::string dig = $5;
+                  std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+              }
               ;
 
+//print(var). print(a[8]).
+//Must be rstatement: INPUT L_PAR mathexp R_PAR PERIOD
 rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD 
              {
                 std::string ident = $3;
                 std::string code = std::string(".< ") + ident + std::string("\n");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+             }
+             |
+             INPUT L_PAR IDENTIFIER L_SQR DIGIT R_SQR R_PAR
+             {
+                std::string ident = $3;
+                std::string dig = $5;
+                std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -748,7 +782,8 @@ factor:     L_PAR mathexp R_PAR
               {
                 std::string ident = $1;
                 std::string dig = $3;
-                std::string code = ident + std::string("[") + dig + std::string("]");
+                std::string temp = create_Temp();
+                std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -762,7 +797,7 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                   if(temp == true)
                   {
                     CodeNode *param = $3;
-                    std::string code = std::string("call ") + ident + std::string("(") + param->code + std::string(")");
+                    std::string code = std::string("call ") + ident + std::string("\n");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
@@ -783,14 +818,15 @@ paramaters:     %empty
                 {
                   std::string ident = $1;
                   CodeNode *param = $3;
-                  std::string code = ident + std::string(",") + param->code + std::string("\n");
+                  std::string code;
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
                 }
                 | IDENTIFIER 
                 {
-                  std::string code = $1;
+                  std::string ident = $1;
+                  std::string code = std::string("param ") + ident + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
