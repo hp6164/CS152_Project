@@ -5,5 +5,5 @@
     num c.
 
     $ Addition, answer is 150, since 100+50 = 150
-    c = (a * b) + 7.
+    c = a * 7.
 }

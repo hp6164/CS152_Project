@@ -741,7 +741,8 @@ term:       term mulop factor
                 CodeNode *fact = $3;
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp);
-                code += muloperator->code +  temp + std::string(", ") +trm->name + fact->code + std::string(", ") + fact->name + std::string("\n") ; 
+                code += trm->code;
+                code += muloperator->code +  temp + std::string(", ") +trm->name + std::string(", ") + fact->name + fact->code + std::string("\n") ; 
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 node->name = temp;
@@ -780,10 +781,7 @@ mulop:      MULTIPLY
 factor:     L_PAR mathexp R_PAR 
             { 
               CodeNode *mathx = $2;
-              std::string code = std::string("(") + mathx->name + std::string(")");
-              CodeNode *node = new CodeNode;
-              node->code = code;
-              $$ = node;
+              $$ = mathx;
             }
             | DIGIT 
               {
