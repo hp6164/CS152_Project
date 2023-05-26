@@ -638,7 +638,17 @@ declaration:  IDENTIFIER
               };
 
 
-pstatements:  OUTPUT L_PAR IDENTIFIER R_PAR PERIOD
+pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
+              {
+                  CodeNode* fncall = new CodeNode;
+                  fncall = $3;                  
+                  std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+              }
+              |
+              OUTPUT L_PAR IDENTIFIER R_PAR PERIOD
               {
                   std::string ident = $3;
                   std::string code = std::string(".> ") + ident + std::string("\n");
@@ -826,9 +836,10 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                   if(temp == true)
                   {
                     CodeNode *param = $3;
-                    std::string code = std::string("call ") + ident + std::string("\n");
+                    std::string code = param->code + std::string("call ") + ident + std::string("\n");
                     CodeNode *node = new CodeNode;
                     node->code = code;
+                    node->name = ident;
                     $$ = node;
                   } 
                   else
@@ -849,7 +860,7 @@ paramaters:     %empty
                   CodeNode *param = $3;
                   std::string code;
                   CodeNode *node = new CodeNode;
-                  node->code = code;
+                  node->code = std::string("param ") + ident + std::string("\n") + param->code;
                   $$ = node;
                 }
                 | IDENTIFIER 

@@ -1,6 +1,6 @@
 :main() num
 {
-  list a[ 3 ].
+  list a[ 20 ].
   b = 3.
   c = 5.
   a[ 0 ] = b + c.
