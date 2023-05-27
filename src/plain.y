@@ -542,7 +542,7 @@ binop :          AND
 declarations:  NUM declist PERIOD
               {
                 CodeNode* decl = $2;
-                std::string code = std::string(". ") + decl->code +  std::string("\n");
+                std::string code = std::string(". ") + decl->code + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -563,7 +563,7 @@ declist:  declaration
               {
                 CodeNode* declr = $1;
                 CodeNode* decl = $3;
-                std::string code = declr->code + std::string(",") + decl->code;
+                std::string code = declr->code + std::string(". ") + decl->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -822,7 +822,7 @@ factor:     L_PAR mathexp R_PAR
                 std::string ident = $1;
                 std::string dig = $3;
                 std::string temp = create_Temp();
-                std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
+                std::string code = std::string("\n") + decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->name = temp;
                 node->code = code;
