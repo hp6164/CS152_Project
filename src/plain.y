@@ -336,7 +336,7 @@ statement:  declarations
             | RETURN mathexp PERIOD
               {
                 CodeNode* mathxp = $2;
-                std::string code = std::string("ret ") + mathxp->code + std::string(".") + std::string("\n");
+                std::string code = mathxp->code + std::string("\n") + std::string("ret ") + mathxp->name + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -546,7 +546,7 @@ declarations:  NUM declist PERIOD
                 CodeNode* decl = $2;
                 std::string code = decl->code;
                 CodeNode *node = new CodeNode;
-                node->code = code;
+                node->code = code + std::string("\n");
                 $$ = node;
               }
             ;
@@ -565,7 +565,7 @@ declist:  declaration
               {
                 CodeNode* declr = $1;
                 CodeNode* decl = $3;
-                std::string code = declr->code + std::string(". ") + decl->code;
+                std::string code = declr->code  + decl->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -574,10 +574,8 @@ declist:  declaration
 
 declaration:  IDENTIFIER 
               {
-                //printf(".%s\n", IDENTIFIER);
-                //string code = (". %s", IDENTIFIER)
                 std::string ident = $1;
-                std::string code = ident;
+                std::string code = std::string(".") + ident;
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
                 if((find(ident, temp) == false) && !temp2)
