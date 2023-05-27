@@ -406,8 +406,8 @@ assign:      IDENTIFIER EQ mathexp
                 CodeNode* mathxp = $3;
                 std::string code,temp3 ;
                 int index;
-                //code += mathxp->code;
-                code += std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
+                code += mathxp->code;
+                code += std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n");
 
                 /*if(mathxp->code.find("_temp") != std::string::npos)
                   {
@@ -426,9 +426,11 @@ assign:      IDENTIFIER EQ mathexp
               }
             | IDENTIFIER COMMA declaration 
               {
+                
                 std::string ident = $1;
                 CodeNode* dcl = $3;
-                std::string code = std::string("=") + ident + std::string(", ") + dcl->code + std::string("\n");
+                std::string code = std::string(". ") + ident + std::string("\n") + dcl->code;
+                //std::string code = std::string("=") + ident + std::string(", ") + dcl->code + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -542,7 +544,7 @@ binop :          AND
 declarations:  NUM declist PERIOD
               {
                 CodeNode* decl = $2;
-                std::string code = std::string(". ") + decl->code + std::string("\n");
+                std::string code = decl->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -610,7 +612,7 @@ declaration:  IDENTIFIER
                 {
                   add_variable_to_symbol_table(ident, temp);              
                   CodeNode* mathxp = $3;
-                  if(mathxp->code.find("_temp") != std::string::npos)
+                  /*if(mathxp->code.find("_temp") != std::string::npos)
                   {
                     index = mathxp->code.find("_temp");
                     temp3 = mathxp->code.substr(index, mathxp->code.size() -1);
@@ -619,7 +621,10 @@ declaration:  IDENTIFIER
                     code = decl_temp_code(temp3);
                   }else{
                     code = std::string("= ") + ident + std::string(", ") + mathxp->code + std::string("\n");
-                  }
+                  }*/
+                  //code += mathxp->code;
+                  code += std::string(". ") + ident + std::string("\n");
+                  code += std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
