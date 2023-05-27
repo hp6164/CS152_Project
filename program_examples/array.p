@@ -1,8 +1,8 @@
 :main() num
 {
   list a[ 20 ].
-  b = 3.
-  c = 5.
+  num b = 3.
+  num c = 5.
   a[ 0 ] = b + c.
   print(a[ 0 ]).    $should print out 8
 
