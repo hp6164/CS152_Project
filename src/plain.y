@@ -386,10 +386,10 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 {
                   std::string dig = $3;
                   CodeNode *mathx = $6;
-                  std::string code = std::string("[]= ") + ident + std::string(", ") + dig + std::string(", ") + mathx->code + std::string("\n");
+                  std::string code = mathx->code + std::string("[]= ") + ident + std::string(", ") + dig + std::string(", ") + mathx->name + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
-                  $$ = node;
+                 $$ = node;
                 }
                 else
                 {
@@ -715,7 +715,7 @@ mathexp:    mathexp addop term
                 CodeNode *trm = $3;
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp);
-                code += addoperator->code +  temp + std::string(", ") +mathx->name + trm->code + std::string(", ") + trm->name + std::string("\n") ; 
+                code += mathx->code + trm->code + addoperator->code + temp + std::string(", ") +mathx->name + std::string(", ") + trm->name + std::string("\n") ; 
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 node->name = temp;
@@ -752,6 +752,7 @@ term:       term mulop factor
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp);
                 code += trm->code;
+                code += fact->code;
                 code += muloperator->code +  temp + std::string(", ") +trm->name + std::string(", ") + fact->name + fact->code + std::string("\n") ; 
                 CodeNode *node = new CodeNode;
                 node->code = code;
@@ -795,9 +796,9 @@ factor:     L_PAR mathexp R_PAR
             }
             | DIGIT 
               {
-                std::string code = $1;
+                std::string name = $1;
                 CodeNode *node = new CodeNode;
-                node->code = code;
+                node->name = name;
                 $$ = node;
               }
             | IDENTIFIER 
@@ -847,7 +848,6 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                     printf("Error, Unknown function called: %s \n", ident.c_str());
                     exit(1);
                   }
-                  
                 };
 
 
@@ -870,7 +870,6 @@ paramaters:     %empty
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
-    //VERIFY ITS  a variable and can be addeed to symbol table
                 };
 
 %%
