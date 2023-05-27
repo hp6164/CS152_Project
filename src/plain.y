@@ -414,7 +414,7 @@ assign:      IDENTIFIER EQ mathexp
                   printf("Error IDENTIFIER not a integer\n");
                   exit(1);
                 }
-                if(find(ident, Arra) == true)
+                if(find(ident, Array) == true)
                 {
                   printf("Error, %s is a integer variable\n", ident.c_str());
                   exit(1);
@@ -446,7 +446,7 @@ assign:      IDENTIFIER EQ mathexp
                   printf("Error IDENTIFIER not a integer\n");
                   exit(1);
                 }
-                if(find(ident, Arra) == true)
+                if(find(ident, Array) == true)
                 {
                   printf("Error, %s is a integer variable\n", ident.c_str());
                   exit(1);
@@ -665,8 +665,7 @@ declaration:  IDENTIFIER
 pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               {
                   CodeNode* fncall = new CodeNode;
-                  fncall = $3; 
-                  if()                 
+                  fncall = $3;                  
                   std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -717,9 +716,9 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
              {
                 std::string ident = $3;
                 std::string code = std::string(".< ") + ident + std::string("\n");
-                if(find(ident, Integer) == false)
+                if(find(ident, Integer) == false) 
                 {
-                  printf("Error, unknown %s, ident.c_str());
+                  printf("Error, unknown %s", ident.c_str());
                   exit(1);
                 }
                 CodeNode *node = new CodeNode;
@@ -733,7 +732,7 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                 std::string dig = $5;
                 if(find(ident, Array) == false)
                 {
-                  printf("Error, unknown %s, ident.c_str());
+                  printf("Error, unknown %s", ident.c_str());
                   exit(1);
                 }
                 std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
@@ -856,7 +855,7 @@ factor:     L_PAR mathexp R_PAR
               {
                 std::string ident = $1;
                 std::string dig = $3;
-                if(dig < 0)
+                if(std::stoi(dig) < 0)
                 {
                   printf("Error, Digit is less than 0");
                   exit(1);
