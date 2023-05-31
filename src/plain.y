@@ -693,7 +693,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               | OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER R_PAR PERIOD
               {
                   std::string ident = $3;
-                  std::string code = std::string(".>") + ident + std::string("\n\n");
+                  std::string code = std::string(".> ") + ident + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
