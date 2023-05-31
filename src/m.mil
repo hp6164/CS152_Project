@@ -1,0 +1,23 @@
+func multiplyNumbers
+. x
+= x, $0
+. y
+= y, $1
+. _temp0
+* _temp0, x, y
+ret _temp0
+endfunc
+
+func main
+. a
+= a, 5
+. b
+= b, 6
+param a
+param b
+call multiplyNumbers
+.> multiplyNumbers
+ret 0
+endfunc
+
+

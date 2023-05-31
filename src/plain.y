@@ -252,7 +252,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
               CodeNode* args = $3;
               CodeNode* sts = $7;
               
-              std::string code = std::string("func ") + fncnm + std::string("\n") + args->code + sts->code + std::string("endfunc\n");
+              std::string code = std::string("func ") + fncnm + std::string("\n") + args->code + sts->code + std::string("endfunc\n\n");
               functioncounter = 0;
               CodeNode *node = new CodeNode;
               node->code = code;
@@ -574,7 +574,7 @@ declarations:  NUM declist PERIOD
                 CodeNode* decl = $2;
                 std::string code = decl->code;
                 CodeNode *node = new CodeNode;
-                node->code = code + std::string("\n");
+                node->code = code;
                 $$ = node;
               }
             ;
@@ -675,9 +675,9 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   fncall = $3;
                   std::string tmp = create_Temp();
                   
-                  std::string code = decl_temp_code(tmp) + std::string("call ") + fncall->name + (", ") + tmp + std::string("\n");
-                  //std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
-                  code+= std::string(".> ") + tmp + std::string("\n");
+                  //std::string code = decl_temp_code(tmp) + std::string("call ") + fncall->name + (", ") + tmp + std::string("\n");
+                  std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
+                  //code+= fncall->code + std::string(".> ") + tmp + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
