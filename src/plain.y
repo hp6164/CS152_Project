@@ -30,6 +30,7 @@ struct Function {
   std::vector<Symbol> declarations;
 };
 
+int functioncounter = 0;
 std::vector <Function> symbol_table;
 
 const int keySIZE = 18;
@@ -252,6 +253,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
               CodeNode* sts = $7;
               
               std::string code = std::string("func ") + fncnm + std::string("\n") + args->code + sts->code + std::string("endfunc\n");
+              functioncounter = 0;
               CodeNode *node = new CodeNode;
               node->code = code;
               $$ = node;
@@ -268,19 +270,24 @@ arguments:  %empty
                   CodeNode *arg2 = $3;
                   CodeNode *node = new CodeNode;
                   node->code = arg1->code + std::string("\n") + arg2->code;
+                  // $$->ids = arg1->ids+ arg2->ids;
                   $$ = node;
               };
             | argument  
             {
-              $$ = $1;
+              $$->code += std::string("\n");
+              $$ = $1 ;
             };
 
 argument:   NUM IDENTIFIER
             {
                 std::string ident = $2;
-                std::string code = 	std::string(". ") + ident;
+                std::string code = 	std::string(". ") + ident +  std::string("\n= ") + ident + std::string(", $") + std::to_string(functioncounter);
+                functioncounter++;
                 CodeNode *node = new CodeNode;
                 node->code = code;
+                node->name = ident;
+                // $$->ids.push_back(ident);
                 $$ = node;
             };
 
@@ -336,7 +343,7 @@ statement:  declarations
             | RETURN mathexp PERIOD
               {
                 CodeNode* mathxp = $2;
-                std::string code = mathxp->code + std::string("\n") + std::string("ret ") + mathxp->name + std::string("\n");
+                std::string code = mathxp->code + std::string("ret ") + mathxp->name + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -665,8 +672,12 @@ declaration:  IDENTIFIER
 pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               {
                   CodeNode* fncall = new CodeNode;
-                  fncall = $3;                  
-                  std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
+                  fncall = $3;
+                  std::string tmp = create_Temp();
+                  
+                  std::string code = decl_temp_code(tmp) + std::string("call ") + fncall->name + (", ") + tmp + std::string("\n");
+                  //std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
+                  code+= std::string(".> ") + tmp + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
