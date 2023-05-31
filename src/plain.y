@@ -217,7 +217,7 @@ prog_start: %empty
                   }
                   node->code = code;
                   $$ = node;
-                  printf("%s\n", code.c_str());
+                  printf("%s\n\\", code.c_str());
               }
             ; 
 
@@ -567,7 +567,7 @@ declarations:  NUM declist PERIOD
                 CodeNode* decl = $2;
                 std::string code = decl->code;
                 CodeNode *node = new CodeNode;
-                node->code = code + std::string("\n");
+                node->code = code ;
                 $$ = node;
               }
             ;
@@ -596,7 +596,7 @@ declist:  declaration
 declaration:  IDENTIFIER 
               {
                 std::string ident = $1;
-                std::string code = std::string(".") + ident;
+                std::string code = std::string(".") + ident + std::string("\n");
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
                 if((find(ident, temp) == false) && !temp2)
@@ -666,7 +666,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               {
                   CodeNode* fncall = new CodeNode;
                   fncall = $3;                  
-                  std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
+                  std::string code = fncall->code + std::string(".> ") + fncall->name;
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
