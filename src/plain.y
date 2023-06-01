@@ -241,6 +241,11 @@ function_ident: FUNCNAME {
   // add the function to the symbol table.
   std::string f = $1;
   std::string fncnm = f.substr(1);
+  // if(findFunction(fncm))
+  // {
+  //   printf("**Error, Function %s() already defined\n", fncnm.c_str());
+  //   exit(2);
+  // }
   add_function_to_symbol_table(fncnm);
   $$ = $1;
 }
@@ -249,6 +254,11 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
             {
               std::string fncnm = $1 + 1;
               
+              if(!findFunction(fncnm))
+              {
+                printf("**Error, Function %s() has not been defined\n", fncnm.c_str());
+                exit(2);
+              }
               CodeNode* args = $3;
               CodeNode* sts = $7;
               
@@ -323,6 +333,15 @@ statement:  declarations
                 node->code = code;
                 $$ = node;
               }
+            | function_call
+            {
+              CodeNode *call = $1;
+              std::string code = call->code;
+              CodeNode *node = new CodeNode;
+              node->code = code;
+              node->name = call->name;
+              $$ = node;                            
+            }
             | ifstatement{printf("statement --> ifstatement\n");}
             | loop       {printf("statement --> loop\n");}
             | pstatements
@@ -694,6 +713,11 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               {
                   CodeNode* fncall = new CodeNode;
                   fncall = $3;
+                  if(!findFunction(fncall->name))
+                  {
+                    printf("**Error, Function %s not defined\n", fncall->name.c_str());
+                    exit(2);
+                  }
                   std::string tmp = create_Temp();
                   
                   // std::string code = decl_temp_code(tmp) + std::string("call ") + fncall->name + (", ") + tmp + std::string("\n");
@@ -892,11 +916,11 @@ factor:     L_PAR mathexp R_PAR
                 std::string name = $1;
                 CodeNode *node = new CodeNode;
                 //node->code = code;
-                if(!find(name, Integer)) 
-                {
-                  printf("Error, Variable %s has not been declared\n", name.c_str());
-                  exit(1);
-                }
+                // if(find(name, Integer)) 
+                // {
+                //   printf("Error, Variable %s has been declared\n", name.c_str());
+                //   exit(1);
+                // }
                 node->name = name;
                 $$ = node;
               }
