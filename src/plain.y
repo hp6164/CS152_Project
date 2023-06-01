@@ -33,8 +33,8 @@ struct Function {
 int functioncounter = 0;
 std::vector <Function> symbol_table;
 
-const int keySIZE = 18;
-std::string keywords[keySIZE] = {"lt", "gt", "leq", "geq", "AND", "NOT", "OR", "same", "diff", "break", "contn", "loop", "IF", "ELSE", "scan", "print", "printL", "ret"};
+const int keySIZE = 19;
+std::string keywords[keySIZE] = {"num", "lt", "gt", "leq", "geq", "AND", "NOT", "OR", "same", "diff", "break", "contn", "loop", "IF", "ELSE", "scan", "print", "printL", "ret"};
 
 // remember that Bison is a bottom up parser: that it parses leaf nodes first before
 // parsing the parent nodes. So control flow begins at the leaf grammar nodes
@@ -282,6 +282,15 @@ arguments:  %empty
 argument:   NUM IDENTIFIER
             {
                 std::string ident = $2;
+                if(find(ident, Integer))
+                {
+                  printf("**Error, Variable %s already defined\n", ident.c_str());
+                  exit(1);
+                }
+                if(checkIfReserved(ident))
+                {
+                  printf("**Error, Variable %s cannot be defined as a keyword\n", ident.c_str());
+                }
                 std::string code = 	std::string(". ") + ident +  std::string("\n= ") + ident + std::string(", $") + std::to_string(functioncounter);
                 functioncounter++;
                 CodeNode *node = new CodeNode;
@@ -369,6 +378,11 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
               {
                 std::string ident = $2;
                 Type t = Array;
+                if(find(ident, Integer))
+                {
+                  printf("**Error, Variable %s has already been declared as an integer\n", ident.c_str());
+                  exit(1);
+                }
                 if(find(ident, Array) == false)
                 {
                   add_variable_to_symbol_table(ident, t);
@@ -382,13 +396,18 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 }
                 else
                 {
-                  printf("Error, Array %s has already been declared\n", ident.c_str());
+                  printf("**Error, Array %s has already been declared\n", ident.c_str());
                   exit(1);
                 }
               } 
             | IDENTIFIER L_SQR DIGIT R_SQR EQ mathexp
               { 
                 std::string ident = $1;
+                if(find(ident, Integer))
+                {
+                  printf("**Error, Variable %s has already been declared as an integer\n", ident.c_str());
+                  exit(1);
+                }
                 if(find(ident, Array) == true)
                 {
                   std::string dig = $3;
@@ -410,15 +429,10 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
 assign:      IDENTIFIER EQ mathexp  
               {
                 std::string ident = $1;
-                CodeNode* mathxp = $3;
-                std::string code,temp3 ;
-                int index;
-                code += mathxp->code;
-                code += std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n");
                 Type t = Integer;
                 if(find(ident, t) == false)
                 {
-                  printf("Error IDENTIFIER not a integer\n");
+                  printf("**Error, Variable %s not a integer\n", ident.c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == true)
@@ -426,6 +440,12 @@ assign:      IDENTIFIER EQ mathexp
                   printf("Error, %s is a integer variable\n", ident.c_str());
                   exit(1);
                 }
+                CodeNode* mathxp = $3;
+                std::string code,temp3 ;
+                int index;
+                code += mathxp->code;
+                code += std::string("= ") + ident + std::string(", ") + mathxp->name + std::string("\n");
+                
                 /*if(mathxp->code.find("_temp") != std::string::npos)
                   {
                     index = mathxp->code.find("_temp");
@@ -445,12 +465,10 @@ assign:      IDENTIFIER EQ mathexp
               {
                 
                 std::string ident = $1;
-                CodeNode* dcl = $3;
-                std::string code = std::string(". ") + ident + std::string("\n") + dcl->code;
                 Type t = Integer;
-                if(find(ident, t) == false)
+                if(find(ident, Integer) == false)
                 {
-                  printf("Error IDENTIFIER not a integer\n");
+                  printf("**Error, Variable %s not a integer\n", ident.c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == true)
@@ -458,6 +476,9 @@ assign:      IDENTIFIER EQ mathexp
                   printf("Error, %s is a integer variable\n", ident.c_str());
                   exit(1);
                 }
+                CodeNode* dcl = $3;
+                std::string code = std::string(". ") + ident + std::string("\n") + dcl->code;
+                
                 //std::string code = std::string("=") + ident + std::string(", ") + dcl->code + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
@@ -686,6 +707,11 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               OUTPUT L_PAR IDENTIFIER R_PAR PERIOD
               {
                   std::string ident = $3;
+                  if(!find(ident, Integer)) 
+                  {
+                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    exit(1);
+                  }
                   std::string code = std::string(".> ") + ident + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -695,6 +721,11 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               OUTPUT L_PAR IDENTIFIER L_SQR DIGIT R_SQR R_PAR PERIOD
               {
                   std::string ident = $3;
+                  if(!find(ident, Array)) 
+                  {
+                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    exit(1);
+                  }
                   std::string dig = $5;
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -704,6 +735,11 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
               | OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER R_PAR PERIOD
               {
                   std::string ident = $3;
+                  if(!find(ident, Integer)) 
+                  {
+                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    exit(1);
+                  }
                   std::string code = std::string(".> ") + ident + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -713,6 +749,11 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                OUTPUT_WITH_NEWLINE L_PAR IDENTIFIER L_SQR DIGIT R_SQR R_PAR PERIOD
                {
                   std::string ident = $3;
+                  if(!find(ident, Array)) 
+                  {
+                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    exit(1);
+                  }
                   std::string dig = $5;
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -729,7 +770,7 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                 std::string code = std::string(".< ") + ident + std::string("\n");
                 if(find(ident, Integer) == false) 
                 {
-                  printf("Error, unknown %s", ident.c_str());
+                  printf("**Error, Variable %s has not been declared\n", ident.c_str());
                   exit(1);
                 }
                 CodeNode *node = new CodeNode;
@@ -743,7 +784,7 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                 std::string dig = $5;
                 if(find(ident, Array) == false)
                 {
-                  printf("Error, unknown %s", ident.c_str());
+                  printf("**Error, Variable %s has not been declared\n", ident.c_str());
                   exit(1);
                 }
                 std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
@@ -851,6 +892,11 @@ factor:     L_PAR mathexp R_PAR
                 std::string name = $1;
                 CodeNode *node = new CodeNode;
                 //node->code = code;
+                if(!find(name, Integer)) 
+                {
+                  printf("Error, Variable %s has not been declared\n", name.c_str());
+                  exit(1);
+                }
                 node->name = name;
                 $$ = node;
               }
@@ -867,11 +913,17 @@ factor:     L_PAR mathexp R_PAR
               {
                 std::string ident = $1;
                 std::string dig = $3;
+                if(!find(ident, Array)) 
+                {
+                  printf("Error, Variable %s has not been declared\n", ident.c_str());
+                  exit(1);
+                }
                 if(std::stoi(dig) < 0)
                 {
                   printf("Error, Digit is less than 0");
                   exit(1);
                 }
+                
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
@@ -887,7 +939,6 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                   bool temp = findFunction(ident);
                   if(temp == true)
                   {
-
                     std::string temp = create_Temp();
                     CodeNode *param = $3;
                     std::string code = param->code + decl_temp_code(temp) 
