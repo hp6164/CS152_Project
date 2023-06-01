@@ -1,8 +1,11 @@
 :main() num
 {
   list a[ 20 ].
-  num b = 3.
-  num c = 5.
+  num b .
+  num c .
+
+  b = 3.
+  c = 5.
   a[ 0 ] = b + c.
   print(a[ 0 ]).    $should print out 8
 
@@ -15,6 +18,7 @@
   a[ 3 ] = a[ 0 ] * (a[ 1 ] + c).
   print(a[ 3 ]).    $should print out 840 since 840 = 8 * (100 +5)
   
-  ret 0.
+  $ Daniel's advice -- no ret in main
+  $ret 0.
 
 }

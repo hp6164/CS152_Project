@@ -30,5 +30,5 @@
     c = (a + b) * 7.
     print(c).
     
-    ret 0.
+    $ret 0.
 }

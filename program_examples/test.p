@@ -30,5 +30,5 @@
     $ Use a regular integer variable as an array variable
     $ c = b[1].
 
-    ret 0.
+    $ret 0.
 }

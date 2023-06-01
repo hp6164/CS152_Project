@@ -9,3 +9,4 @@ src/p.tab.h
 src/y.output
 src/p.output
 src/parser
+src/*.mil

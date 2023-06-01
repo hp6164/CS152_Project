@@ -5,5 +5,5 @@
     print(n).
     printL(n).
     
-    ret 0.
+    $ret 0.
 }
