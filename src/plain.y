@@ -218,7 +218,7 @@ prog_start: %empty
                   }
                   node->code = code;
                   $$ = node;
-                  printf("%s\n", code.c_str());
+                  printf("%s", code.c_str());
               }
             ; 
 
@@ -335,7 +335,7 @@ statement:  declarations
             | assign PERIOD
               {
                 CodeNode* assgn = $1;
-                std::string code = assgn->code  + std::string("\n");
+                std::string code = assgn->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -603,7 +603,7 @@ declist:  declaration
 declaration:  IDENTIFIER 
               {
                 std::string ident = $1;
-                std::string code = std::string(".") + ident;
+                std::string code = std::string(". ") + ident + std::string("\n");
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
                 if((find(ident, temp) == false) && !temp2)
@@ -675,9 +675,9 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   fncall = $3;
                   std::string tmp = create_Temp();
                   
-                  //std::string code = decl_temp_code(tmp) + std::string("call ") + fncall->name + (", ") + tmp + std::string("\n");
+                  // std::string code = decl_temp_code(tmp) + std::string("call ") + fncall->name + (", ") + tmp + std::string("\n");
                   std::string code = fncall->code + std::string(".> ") + fncall->name + std::string("\n");
-                  //code+= fncall->code + std::string(".> ") + tmp + std::string("\n");
+                  // code+= fncall->code + std::string(".> ") + tmp + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
@@ -795,10 +795,10 @@ term:       term mulop factor
                 CodeNode *muloperator = $2;
                 CodeNode *fact = $3;
                 std::string temp = create_Temp();
-                std::string code = decl_temp_code(temp);
+                std::string code =  decl_temp_code(temp);
                 code += trm->code;
                 code += fact->code;
-                code += muloperator->code +  temp + std::string(", ") +trm->name + std::string(", ") + fact->name + fact->code + std::string("\n") ; 
+                code += muloperator->code +  temp + std::string(", ") +trm->name + std::string(", ") + fact->name +  std::string("\n") ; 
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 node->name = temp;
@@ -860,6 +860,7 @@ factor:     L_PAR mathexp R_PAR
                 std::string code = para->code;
                 CodeNode *node = new CodeNode;
                 node->code = code;
+                node->name = para->name;
                 $$ = node;
               }
             | IDENTIFIER L_SQR DIGIT R_SQR 
@@ -872,7 +873,7 @@ factor:     L_PAR mathexp R_PAR
                   exit(1);
                 }
                 std::string temp = create_Temp();
-                std::string code = std::string("\n") + decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
+                std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->name = temp;
                 node->code = code;
@@ -880,18 +881,21 @@ factor:     L_PAR mathexp R_PAR
               }
             ;
 
-function_call:  IDENTIFIER L_PAR paramaters R_PAR 
+function_call:  IDENTIFIER L_PAR paramaters R_PAR
                 {
                   std::string ident = $1;
                   bool temp = findFunction(ident);
                   if(temp == true)
                   {
+
+                    std::string temp = create_Temp();
                     CodeNode *param = $3;
-                    std::string code = param->code + std::string("call ") + ident + std::string("\n");
+                    std::string code = param->code + decl_temp_code(temp) 
+                                     + std::string("call ") + ident + std::string(", ") + temp +  std::string("\n");
                     CodeNode *node = new CodeNode;
                     node->code = code;
-                    node->name = ident;
-                    $$ = node;
+                    node->name = temp;
+                    $$ =  node;
                   } 
                   else
                   {
@@ -907,16 +911,18 @@ paramaters:     %empty
                 | mathexp COMMA paramaters 
                 {
                   CodeNode *math = $1;
-                  CodeNode *param = $3;
+                  CodeNode *params = $3;
                   std::string code;
                   CodeNode *node = new CodeNode;
-                  node->code = std::string("param ") + math->code + std::string("\n") + param->code;
+                  node->code += math->code + std::string("param ") + math->name + std::string("\n");
+                  node->code += params->code;
+                  //node->code =  param->code + math->name + math->code + std::string("\n") +  std::string("param ") + param->name + std::string("\n") ;
                   $$ = node;
                 }
                 | mathexp 
                 {
                   CodeNode *math = $1;
-                  std::string code = std::string("param ") + math->code + std::string("\n");
+                  std::string code = math->code +  std::string("param ") + math->name + std::string("\n") ;
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;

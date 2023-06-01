@@ -4,4 +4,4 @@ all:
 	g++ -o parser p.tab.c lex.yy.c -lfl -std=c++11
 
 clean:
-	rm -f lex.yy.c lexer p.output p.tab.h p.tab.c
+	rm -f parser lex.yy.c lexer p.output p.tab.h p.tab.c *.mil
