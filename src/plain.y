@@ -904,19 +904,19 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
 paramaters:     %empty 
                 {
                 }
-                | IDENTIFIER COMMA paramaters 
+                | mathexp COMMA paramaters 
                 {
-                  std::string ident = $1;
+                  CodeNode *math = $1;
                   CodeNode *param = $3;
                   std::string code;
                   CodeNode *node = new CodeNode;
-                  node->code = std::string("param ") + ident + std::string("\n") + param->code;
+                  node->code = std::string("param ") + math->code + std::string("\n") + param->code;
                   $$ = node;
                 }
-                | IDENTIFIER 
+                | mathexp 
                 {
-                  std::string ident = $1;
-                  std::string code = std::string("param ") + ident + std::string("\n");
+                  CodeNode *math = $1;
+                  std::string code = std::string("param ") + math->code + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
