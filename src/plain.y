@@ -272,7 +272,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
 arguments:  %empty
             { 
               CodeNode *node = new CodeNode;
-              $$ = node;
+              $$ = node
             }
             | argument COMMA arguments
               {
@@ -406,7 +406,6 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 {
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
-                  verifyDigit(dig);
                   //printf("Dig:%s;",dig.c_str());
                   std::string code = std::string(".[] ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -811,10 +810,13 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                   printf("**Error, Variable %s has not been declared\n", ident.c_str());
                   exit(1);
                 }
-                std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
-                CodeNode *node = new CodeNode;
-                node->code = code;
-                $$ = node;
+                else{
+                  std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
+                  CodeNode *node = new CodeNode;
+                  node->code = code;
+                  $$ = node;
+                }
+                
              }
              ;
 
@@ -942,11 +944,7 @@ factor:     L_PAR mathexp R_PAR
                   printf("Error, Variable %s has not been declared\n", ident.c_str());
                   exit(1);
                 }
-                if(std::stoi(dig) < 0)
-                {
-                  printf("Error, Digit is less than 0");
-                  exit(1);
-                }
+                 verifyDigit(dig);
                 
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
