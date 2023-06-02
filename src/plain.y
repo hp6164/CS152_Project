@@ -241,11 +241,6 @@ function_ident: FUNCNAME {
   // add the function to the symbol table.
   std::string f = $1;
   std::string fncnm = f.substr(1);
-  // if(findFunction(fncm))
-  // {
-  //   printf("**Error, Function %s() already defined\n", fncnm.c_str());
-  //   exit(2);
-  // }
   add_function_to_symbol_table(fncnm);
   $$ = $1;
 }
@@ -272,7 +267,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
 arguments:  %empty
             { 
               CodeNode *node = new CodeNode;
-              $$ = node
+              $$ = node;
             }
             | argument COMMA arguments
               {
@@ -282,7 +277,7 @@ arguments:  %empty
                   node->code = arg1->code + std::string("\n") + arg2->code;
                   // $$->ids = arg1->ids+ arg2->ids;
                   $$ = node;
-              };
+              }
             | argument  
             {
               $$->code += std::string("\n");
@@ -384,7 +379,7 @@ statement:  declarations
               }
             ;
 
-array:      LIST IDENTIFIER L_SQR DIGIT R_SQR 
+array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
               {
                 std::string ident = $2;
                 Type t = Array;
@@ -397,7 +392,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 {
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
-                  verifyDigit(dig);
+                  verifyDigit(dig);            
                   //printf("Dig:%s;",dig.c_str());
                   std::string code = std::string(".[] ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -421,7 +416,12 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 if(find(ident, Array) == true)
                 {
                   std::string dig = $3;
-                  verifyDigit(dig);
+                  // verifyDigit(dig);
+                  if(stoi(dig)<0)
+                  {
+                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    exit(8);
+                  }
                   CodeNode *mathx = $6;
                   std::string code = mathx->code + std::string("[]= ") + ident + std::string(", ") + dig + std::string(", ") + mathx->name + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -443,7 +443,7 @@ assign:      IDENTIFIER EQ mathexp
                 Type t = Integer;
                 if(find(ident, t) == false)
                 {
-                  printf("**Error, Variable %s not a integer\n", ident.c_str());
+                  printf("\t**Error, Variable %s has not been declared**\n", ident.c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == true)
@@ -638,6 +638,11 @@ declaration:  IDENTIFIER
                 std::string code = std::string(". ") + ident + std::string("\n");
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
+                if(find(ident, Array))
+                {
+                  printf("**Error, Variable %s has already been declared as a list\n", ident.c_str());
+                  exit(4);
+                }
                 if((find(ident, temp) == false) && !temp2)
                 {
                   add_variable_to_symbol_table(ident, temp);
@@ -661,6 +666,11 @@ declaration:  IDENTIFIER
             | IDENTIFIER EQ mathexp 
               {
                 std::string ident = $1;
+                if(find(ident, Array))
+                {
+                  printf("**Error, Variable %s has already been declared as a list\n", ident.c_str());
+                  exit(4);
+                }
                 Type temp = Integer;
                 bool temp2 = checkIfReserved(ident);
                 std::string code;
@@ -743,7 +753,12 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                     exit(1);
                   }
                   std::string dig = $5;
-                  verifyDigit(dig);
+                  // verifyDigit(dig);
+                  if(stoi(dig)<0)
+                  {
+                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    exit(8);
+                  }
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -772,7 +787,12 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                     exit(1);
                   }
                   std::string dig = $5;
-                  verifyDigit(dig);
+                  // verifyDigit(dig);
+                  if(stoi(dig)<0)
+                  {
+                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    exit(8);
+                  }
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -806,13 +826,17 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                   exit(1);
                 }
                 else{
-                  verifyDigit(dig);
+                  // verifyDigit(dig);
+                  if(stoi(dig)<0)
+                  {
+                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    exit(8);
+                  }
                   std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
                 }
-                
              }
              ;
 
@@ -834,7 +858,7 @@ mathexp:    mathexp addop term
                 CodeNode *trm = $1;
                 $$ = trm;
               }
-            ;
+              ;
 
 addop:      PLUS 
              {
@@ -850,7 +874,7 @@ addop:      PLUS
                 node->code = code;
                 $$ = node;
               }
-            ;
+              ;
 
 term:       term mulop factor  
               {
@@ -872,7 +896,7 @@ term:       term mulop factor
                   CodeNode *fact = $1;
                   $$ = fact;
                 }
-            ;
+                ;
 
 mulop:      MULTIPLY 
             {
@@ -895,7 +919,7 @@ mulop:      MULTIPLY
                 node->code = code;
                 $$ = node;
               }
-            ;
+              ;
 
 factor:     L_PAR mathexp R_PAR 
             { 
@@ -914,11 +938,11 @@ factor:     L_PAR mathexp R_PAR
                 std::string name = $1;
                 CodeNode *node = new CodeNode;
                 //node->code = code;
-                // if(find(name, Integer)) 
-                // {
-                //   printf("Error, Variable %s has been declared\n", name.c_str());
-                //   exit(1);
-                // }
+                if(!find(name, Integer)) 
+                {
+                  printf("Error, Variable %s has not been declared\n", name.c_str());
+                  exit(4);
+                }
                 node->name = name;
                 $$ = node;
               }
@@ -940,8 +964,12 @@ factor:     L_PAR mathexp R_PAR
                   printf("Error, Variable %s has not been declared\n", ident.c_str());
                   exit(1);
                 }
-                 verifyDigit(dig);
-                
+                //  verifyDigit(dig);
+                  if(stoi(dig)<0)
+                  {
+                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    exit(8);
+                  }
                 std::string temp = create_Temp();
                 std::string code = decl_temp_code(temp) + std::string("=[] ") + temp + std::string(", ")+ident + std::string(", ") + dig + std::string("\n");
                 CodeNode *node = new CodeNode;
@@ -949,7 +977,7 @@ factor:     L_PAR mathexp R_PAR
                 node->code = code;
                 $$ = node;
               }
-            ;
+              ;
 
 function_call:  IDENTIFIER L_PAR paramaters R_PAR
                 {
