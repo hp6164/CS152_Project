@@ -1,0 +1,4 @@
+:mult() num
+{
+   num a.
+}
