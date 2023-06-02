@@ -19,7 +19,7 @@ COMMENT [\$].*
 
 %%
 
-[\n]+           {newLine++; col = 1;}
+[\n]           {newLine++; col = 1;}
 [ \t]    	    {col += yyleng;}
 {COMMENT}       {col += yyleng;}
 "%"             {return MODULUS; col++;}

@@ -296,6 +296,8 @@ argument:   NUM IDENTIFIER
                 {
                   printf("**Error, Variable %s cannot be defined as a keyword\n", ident.c_str());
                 }
+                Type t = Integer;
+                add_variable_to_symbol_table(ident, t);
                 std::string code = 	std::string(". ") + ident +  std::string("\n= ") + ident + std::string(", $") + std::to_string(functioncounter);
                 functioncounter++;
                 CodeNode *node = new CodeNode;
