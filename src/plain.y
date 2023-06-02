@@ -272,7 +272,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
 arguments:  %empty
             { 
               CodeNode *node = new CodeNode;
-              $$ = node;
+              $$ = node
             }
             | argument COMMA arguments
               {
@@ -282,7 +282,7 @@ arguments:  %empty
                   node->code = arg1->code + std::string("\n") + arg2->code;
                   // $$->ids = arg1->ids+ arg2->ids;
                   $$ = node;
-              }
+              };
             | argument  
             {
               $$->code += std::string("\n");
@@ -397,6 +397,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 {
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
+                  verifyDigit(dig);
                   //printf("Dig:%s;",dig.c_str());
                   std::string code = std::string(".[] ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -420,6 +421,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 if(find(ident, Array) == true)
                 {
                   std::string dig = $3;
+                  verifyDigit(dig);
                   CodeNode *mathx = $6;
                   std::string code = mathx->code + std::string("[]= ") + ident + std::string(", ") + dig + std::string(", ") + mathx->name + std::string("\n");
                   CodeNode *node = new CodeNode;
@@ -741,6 +743,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                     exit(1);
                   }
                   std::string dig = $5;
+                  verifyDigit(dig);
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -769,6 +772,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                     exit(1);
                   }
                   std::string dig = $5;
+                  verifyDigit(dig);
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -802,11 +806,13 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                   exit(1);
                 }
                 else{
+                  verifyDigit(dig);
                   std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
                 }
+                
              }
              ;
 
@@ -827,7 +833,8 @@ mathexp:    mathexp addop term
               {
                 CodeNode *trm = $1;
                 $$ = trm;
-              };
+              }
+            ;
 
 addop:      PLUS 
              {
@@ -842,7 +849,8 @@ addop:      PLUS
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
-              };
+              }
+            ;
 
 term:       term mulop factor  
               {
@@ -863,7 +871,8 @@ term:       term mulop factor
               {
                   CodeNode *fact = $1;
                   $$ = fact;
-                };
+                }
+            ;
 
 mulop:      MULTIPLY 
             {
@@ -885,7 +894,8 @@ mulop:      MULTIPLY
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
-              };
+              }
+            ;
 
 factor:     L_PAR mathexp R_PAR 
             { 
@@ -938,7 +948,8 @@ factor:     L_PAR mathexp R_PAR
                 node->name = temp;
                 node->code = code;
                 $$ = node;
-              };
+              }
+            ;
 
 function_call:  IDENTIFIER L_PAR paramaters R_PAR
                 {
