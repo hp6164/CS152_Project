@@ -11,6 +11,8 @@ extern FILE* yyin;
 extern int yylex(void);
 void yyerror(const char *msg);
 extern int currLine;
+extern int newLine;
+extern int col; 
 
 char *identToken;
 int numberToken;
@@ -42,7 +44,7 @@ std::string keywords[keySIZE] = {"num", "lt", "gt", "leq", "geq", "AND", "NOT", 
 Function *get_function() {
   int last = symbol_table.size()-1;
   if (last < 0) {
-    printf("***Error. Attempt to call get_function with an empty symbol table\n");
+    printf("\n***Error. Attempt to call get_function with an empty symbol table***\n");
     printf("Create a 'Function' object using 'add_function_to_symbol_table' before\n");
     printf("calling 'find' or 'add_variable_to_symbol_table'");
     exit(1);
@@ -116,7 +118,7 @@ void verifyDigit(std::string &dig)
   int digit = std::stoi(dig);
   if(digit <= 0)
   {
-    printf("Error, array size must be greater than 0 \n");
+    yyerror(std::string(" Array size must be greater than 0.").c_str());
     exit(1);
   }
 }
@@ -213,7 +215,7 @@ prog_start: %empty
                   bool temp = findFunction(t);
                   if(temp == false)
                   {
-                    printf("Error, Program has no main function\n");
+                    yyerror(std::string("Program has no main function\n").c_str());
                     exit(1);
                   }
                   node->code = code;
@@ -251,7 +253,7 @@ function:   function_ident L_PAR arguments R_PAR NUM L_CUR statements R_CUR
               
               if(!findFunction(fncnm))
               {
-                printf("**Error, Function %s() has not been defined\n", fncnm.c_str());
+                yyerror(std::string("Function" + fncnm + "() has not been defined").c_str());
                 exit(2);
               }
               CodeNode* args = $3;
@@ -289,12 +291,12 @@ argument:   NUM IDENTIFIER
                 std::string ident = $2;
                 if(find(ident, Integer))
                 {
-                  printf("**Error, Variable %s already defined\n", ident.c_str());
+                  yyerror(std::string("Variable" + ident + " is already defined").c_str());
                   exit(1);
                 }
                 if(checkIfReserved(ident))
                 {
-                  printf("**Error, Variable %s cannot be defined as a keyword\n", ident.c_str());
+                  yyerror(std::string("Variable" + ident + " cannot be defined as a keyword.").c_str());
                 }
                 Type t = Integer;
                 add_variable_to_symbol_table(ident, t);
@@ -387,15 +389,14 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 Type t = Array;
                 if(find(ident, Integer))
                 {
-                  printf("**Error, Variable %s has already been declared as an integer\n", ident.c_str());
+                  yyerror(std::string("Variable " + ident + " has already been declared as an integer.").c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == false)
                 {
                   add_variable_to_symbol_table(ident, t);
                   std::string dig = $4;
-                  verifyDigit(dig);            
-                  //printf("Dig:%s;",dig.c_str());
+                  verifyDigit(dig);
                   std::string code = std::string(".[] ") + ident + std::string(", ") + dig + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->code = code;
@@ -403,7 +404,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 }
                 else
                 {
-                  printf("**Error, Array %s has already been declared\n", ident.c_str());
+                  yyerror(std::string("Array "+ ident + " has already been declared").c_str());
                   exit(1);
                 }
               } 
@@ -412,7 +413,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 std::string ident = $1;
                 if(find(ident, Integer))
                 {
-                  printf("**Error, Variable %s has already been declared as an integer\n", ident.c_str());
+                  yyerror(std::string("Variable" + ident + " has already been declared as an integer").c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == true)
@@ -421,7 +422,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                   // verifyDigit(dig);
                   if(stoi(dig)<0)
                   {
-                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    yyerror(std::string("List cannot be defined with negative index").c_str());
                     exit(8);
                   }
                   CodeNode *mathx = $6;
@@ -432,7 +433,7 @@ array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
                 }
                 else
                 {
-                  printf("Error,variable %s is not an array", ident.c_str());
+                  yyerror(std::string("Variable " + ident+ " is not an array.").c_str());
                   exit(1);
                 }
                 
@@ -445,12 +446,12 @@ assign:      IDENTIFIER EQ mathexp
                 Type t = Integer;
                 if(find(ident, t) == false)
                 {
-                  printf("\t**Error, Variable %s has not been declared**\n", ident.c_str());
+                  yyerror(("Variable " + ident+ " not declared").c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == true)
                 {
-                  printf("Error, %s is a integer variable\n", ident.c_str());
+                  yyerror(std::string(ident +" is a integer variable").c_str());
                   exit(1);
                 }
                 CodeNode* mathxp = $3;
@@ -481,12 +482,12 @@ assign:      IDENTIFIER EQ mathexp
                 Type t = Integer;
                 if(find(ident, Integer) == false)
                 {
-                  printf("**Error, Variable %s not a integer\n", ident.c_str());
+                  yyerror(std::string("Variable " + ident + " not a integer").c_str());
                   exit(1);
                 }
                 if(find(ident, Array) == true)
                 {
-                  printf("Error, %s is a integer variable\n", ident.c_str());
+                  yyerror(std::string(" " + ident +" is a integer variable").c_str());
                   exit(1);
                 }
                 CodeNode* dcl = $3;
@@ -642,7 +643,7 @@ declaration:  IDENTIFIER
                 bool temp2 = checkIfReserved(ident);
                 if(find(ident, Array))
                 {
-                  printf("**Error, Variable %s has already been declared as a list\n", ident.c_str());
+                  yyerror(std::string("Variable"+ ident + " has already been declared as a list").c_str());
                   exit(4);
                 }
                 if((find(ident, temp) == false) && !temp2)
@@ -655,11 +656,11 @@ declaration:  IDENTIFIER
                 {
                   if(temp2)
                   {
-                    printf("Error, Variable %s is a keyword \n", ident.c_str());
+                    yyerror(std::string("Variable "+ ident + " is a keyword").c_str());
                     exit(1);
                   }else
                   {
-                    printf("Error, Variable %s has already been declared \n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " has already declared").c_str());
                     exit(1);
                   }
                 }
@@ -670,7 +671,7 @@ declaration:  IDENTIFIER
                 std::string ident = $1;
                 if(find(ident, Array))
                 {
-                  printf("**Error, Variable %s has already been declared as a list\n", ident.c_str());
+                  yyerror(std::string("Error, variable " + ident + " has already been declared as a list").c_str());
                   exit(4);
                 }
                 Type temp = Integer;
@@ -702,11 +703,11 @@ declaration:  IDENTIFIER
                 {
                   if(temp2)
                   {
-                    printf("Error, Variable %s is a keyword \n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " is a keyword").c_str());
                     exit(1);
                   }else
                   {
-                    printf("Error, Variable %s has already been declared \n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " has not been declared").c_str());
                     exit(1);
                   }
                 }
@@ -719,7 +720,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   fncall = $3;
                   if(!findFunction(fncall->name))
                   {
-                    printf("**Error, Function %s not defined\n", fncall->name.c_str());
+                    yyerror(std::string("Error, Function " + fncall->name + " has not been defined").c_str());
                     exit(2);
                   }
                   std::string tmp = create_Temp();
@@ -737,7 +738,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   std::string ident = $3;
                   if(!find(ident, Integer)) 
                   {
-                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " has not been declared").c_str());
                     exit(1);
                   }
                   std::string code = std::string(".> ") + ident + std::string("\n");
@@ -751,14 +752,14 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   std::string ident = $3;
                   if(!find(ident, Array)) 
                   {
-                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " has not been declared").c_str());
                     exit(1);
                   }
                   std::string dig = $5;
                   // verifyDigit(dig);
                   if(stoi(dig)<0)
                   {
-                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    yyerror(std::string("Error, List " + ident + " cannot be defined with negative index").c_str());
                     exit(8);
                   }
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
@@ -771,7 +772,7 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   std::string ident = $3;
                   if(!find(ident, Integer)) 
                   {
-                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " has not been declared").c_str());
                     exit(1);
                   }
                   std::string code = std::string(".> ") + ident + std::string("\n");
@@ -785,14 +786,14 @@ pstatements:  OUTPUT L_PAR function_call R_PAR PERIOD
                   std::string ident = $3;
                   if(!find(ident, Array)) 
                   {
-                    printf("Error, Variable %s has not been declared\n", ident.c_str());
+                    yyerror(std::string("Error, variable " + ident + " has not been declared").c_str());
                     exit(1);
                   }
                   std::string dig = $5;
                   // verifyDigit(dig);
                   if(stoi(dig)<0)
                   {
-                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    yyerror(std::string("Error, List " + ident + " cannot be defined with negative index ").c_str());
                     exit(8);
                   }
                   std::string code = std::string(".[]> ") + ident + std::string(", ") + dig + std::string("\n");
@@ -810,7 +811,7 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                 std::string code = std::string(".< ") + ident + std::string("\n");
                 if(find(ident, Integer) == false) 
                 {
-                  printf("**Error, Variable %s has not been declared\n", ident.c_str());
+                  yyerror(std::string("Error, Variable " + ident + " has not been declared").c_str());
                   exit(1);
                 }
                 CodeNode *node = new CodeNode;
@@ -824,14 +825,14 @@ rstatement:  INPUT L_PAR IDENTIFIER R_PAR PERIOD
                 std::string dig = $5;
                 if(find(ident, Array) == false)
                 {
-                  printf("**Error, Variable %s has not been declared\n", ident.c_str());
+                  yyerror(std::string("Error, Variable " + ident + " has not been declared ").c_str());
                   exit(1);
                 }
                 else{
                   // verifyDigit(dig);
                   if(stoi(dig)<0)
                   {
-                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    yyerror(std::string("Error, List " + ident + " cannot be defined with negative index ").c_str());
                     exit(8);
                   }
                   std::string code = std::string(".[]< ") + ident + std::string(", ") + dig + std::string("\n");
@@ -942,7 +943,7 @@ factor:     L_PAR mathexp R_PAR
                 //node->code = code;
                 if(!find(name, Integer)) 
                 {
-                  printf("Error, Variable %s has not been declared\n", name.c_str());
+                  yyerror(std::string("Error, Variable " + name + " has not been declared ").c_str());
                   exit(4);
                 }
                 node->name = name;
@@ -963,13 +964,13 @@ factor:     L_PAR mathexp R_PAR
                 std::string dig = $3;
                 if(!find(ident, Array)) 
                 {
-                  printf("Error, Variable %s has not been declared\n", ident.c_str());
+                  yyerror(std::string("Error, Variable " + ident + " has not been declared ").c_str());
                   exit(1);
                 }
                 //  verifyDigit(dig);
                   if(stoi(dig)<0)
                   {
-                    printf("**Error, List %s cannot be defined with negative index\n", ident.c_str());
+                    yyerror(std::string("Error, List " + ident + " cannot be defined with negative index ").c_str());
                     exit(8);
                   }
                 std::string temp = create_Temp();
@@ -998,7 +999,7 @@ function_call:  IDENTIFIER L_PAR paramaters R_PAR
                   } 
                   else
                   {
-                    printf("Error, Unknown function called: %s \n", ident.c_str());
+                    yyerror(std::string("Error, Unknown function: " + ident).c_str());
                     exit(1);
                   }
                 };
