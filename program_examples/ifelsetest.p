@@ -1,21 +1,20 @@
 :main () num
 {
-    num a = 25.
-    num b = 20.
-    num c = 2.
-    num n = 0.
-    loop | n leq 4 |
-    {
-        IF | a - b same c |
-        {
-            print(c).
-        }
-        ELSE
-        {
-            b = b + 1.
-            print(99).
-        }
-    }
+    num a.
+    num b.
+    num c.
+    a = 100.
+    b = 50.
 
-    ret 0.
+    IF | a lt b |
+    {
+       c = b.
+    }
+    ELSE
+    {
+       c = a.
+    }
+    print(c).  $ should print out 100
+
+    $ret 0.
 }

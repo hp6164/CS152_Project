@@ -148,6 +148,27 @@ std::string decl_temp_code(std::string &temp)
   return std::string(". ") + temp + std::string("\n");
 }
 
+std::string create_if()
+{
+  static int num = 0;
+  std::string t = std::string("if_true")+std::to_string(num);
+  num ++;
+  return t;
+}
+
+std::string decl_label_code(std::string &temp)
+{
+  return std::string(": ") + temp + std::string("\n");
+}
+
+std::string create_else()
+{
+  static int num = 0;
+  std::string t = std::string("else") + std::to_string(num);
+  num++;
+  return t;
+}
+
 struct CodeNode {
     std::string code; // generated code as a string.
     std::string name;
@@ -332,8 +353,22 @@ statement:  declarations
                 node->code = code;
                 $$ = node;
               }
-            | ifstatement{printf("statement --> ifstatement\n");}
-            | loop       {printf("statement --> loop\n");}
+            | ifstatement
+            {
+              CodeNode* ifst = $1;
+              std::string code = ifst->code;
+              CodeNode *node = new CodeNode;
+              node->code = code;
+              $$ = node;
+            }
+            | loop
+            {
+              CodeNode* loopst = $1;
+              std::string code = loopst->code;
+              CodeNode *node = new CodeNode;
+              node->code = code;
+              $$ = node;
+            }
             | pstatements
               {
                 CodeNode* pst = $1;
@@ -500,14 +535,44 @@ assign:      IDENTIFIER EQ mathexp
               }
             ;
 
-ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement {printf("ifstatement --> IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement\n");}
+ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestatement 
+                {
+                  CodeNode* condition = $3;
+                  CodeNode* st = $6;
+                  CodeNode* elsest = $8;
+                  CodeNode* node = new CodeNode;
+                  std::string iflabel = create_if();
+                  std::string code = condition->code;
+                  code += std::string("?:= ") + iflabel + std::string(", ") + condition->name + std::string("\n");
+                  code += std::string(":= ")+elsest->name + std::string("\n"); //code += ":= " + elsest->name + std::string("\n");
+                  code += ": " + iflabel + std::string("\n");
+                  code += st->code;
+                  //create endif here in 551
+                  code += std::string(":= ") +  + std::string("\n"); //have end if
+                  code += elsest->code;
+                  node->code = code;
+                  $$ = node;
+                }
                 ;
 
-elsestatement: %empty {printf("elsestatement --> epsilon\n");}
-                | ELSE L_CUR statements R_CUR {printf("elsestatement --> ELSE L_CUR statements R_CUR\n");}
+
+elsestatement: %empty
+                {
+                  CodeNode *node = new CodeNode;
+                  $$ = node;
+                }
+                | ELSE L_CUR statements R_CUR
+                {
+                  CodeNode *node = new CodeNode;
+                  std::string n = create_else();
+                  node->name =  n;
+                  CodeNode *st = $3;
+                  node->code = decl_label_code(n) + st->code;
+                  $$ = node;
+                }
                 ;
 
-loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_CUR statements R_CUR\n");}
+loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_SQR statements R_SQR\n");}
             ;
 
 expressions:    mathexp binop expressions
@@ -515,8 +580,10 @@ expressions:    mathexp binop expressions
                   CodeNode* mathxp = $1;
                   CodeNode* binoperat = $2;
                   CodeNode* expr = $3;
-                  std::string code = mathxp->code + binoperat->code + expr->code;
+                  std::string temp = create_Temp();
+                  std::string code = decl_temp_code(temp) + binoperat->code + temp + std::string(", ") + mathxp->name + std::string(", ") + expr->name + std::string("\n");
                   CodeNode *node = new CodeNode;
+                  node->name = temp;
                   node->code = code;
                   $$ = node;
                 }
@@ -538,66 +605,65 @@ expressions:    mathexp binop expressions
                   }
                 | mathexp 
                   {
-                    // CodeNode* mathxp = $1;
-                    // std::string code = mathxp->code;
-                    // CodeNode *node = new CodeNode;
-                    // node->code = code;
-                    // $$ = node;
-                    $$ = $1;
+                     CodeNode* mathxp = $1;
+                     CodeNode *node = new CodeNode;
+                     node->code = mathxp->code;
+                     node->name = mathxp->name;
+                     $$ = node;
                   };
 
 binop :          AND 
                 {
-                  std::string code = std::string("AND");
+                  std::string code = std::string("&& ");
                   CodeNode *node = new CodeNode;
                   node->code = code;
                   $$ = node;
                 }
                 | OR 
                   {
-                    std::string code = std::string("OR");
+                    std::string code = std::string("|| ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
                 | EQUALS
                   {
-                    std::string code = std::string("==");
+                    std::string code = std::string("== ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
                 | NOT_EQ
                   {
-                    std::string code = std::string("!=");
+                    std::string code = std::string("!= ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
                 | L_T 
                   {
-                    std::string code = std::string("<");
+                    std::string code = std::string("< ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
                 | G_T 
                   {
-                    std::string code = std::string(">");
+                    std::string code = std::string("> ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
                 | L_EQ
                   {
-                    std::string code = std::string("<=");
+                    std::string code = std::string("<= ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
                 | G_EQ
                   {
-                    std::string code = std::string(">=");
+                    std::string code = std::string(">= ");
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
