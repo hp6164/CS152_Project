@@ -548,8 +548,10 @@ ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestateme
                   code += ": " + iflabel + std::string("\n");
                   code += st->code;
                   //create endif here in 551
-                  code += std::string(":= ") +  + std::string("\n"); //have end if
+                  std::string temp = std::string("endif") + iflabel.substr(iflabel.find("e") + 1, iflabel.at(iflabel.size()-1));
+                  code += std::string(":= ") + temp + std::string("\n"); //have end if
                   code += elsest->code;
+                  code += std::string(": ") + temp + std::string("\n");
                   node->code = code;
                   $$ = node;
                 }
