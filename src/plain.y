@@ -594,7 +594,7 @@ loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR
                 code += std::string(": loopbody") + integer + std::string("\n");
                 code += st->code;
                 code += std::string(":= ") + loopname + std::string("\n");
-                code += std::string(":= endloop")+ integer + std::string("\n");
+                code += std::string(": endloop")+ integer + std::string("\n");
                 node->code = code;
                 $$ = node;
             } 
