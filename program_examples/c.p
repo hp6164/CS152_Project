@@ -9,9 +9,13 @@
         {
             break.
         }
-        print(a).
-        a = a + 1.
-        contn.
+        ELSE
+        {
+            print(a).
+            a = a + 1.
+            contn.  
+        }
+        
     }
     print(b).
     print(a).
