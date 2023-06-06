@@ -423,7 +423,7 @@ statement:  declarations
               }
             | BREAK PERIOD 
               {
-                std::string code = = std::string(":= enbody");
+                std::string code = std::string(":= endloop");
                 if(loopstack.empty())
                 {
                   yyerror("break is not in loop");
@@ -431,7 +431,7 @@ statement:  declarations
                 }
                 else
                 {
-                  std::string code +=  std::to_string(loopstack.top()); + std::string("\n");
+                  code +=  std::to_string(loopstack.top()) + std::string("\n");
                 }
                 
                 CodeNode *node = new CodeNode;
@@ -582,7 +582,7 @@ ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestateme
                   std::string iflabel = create_if();
                   std::string code = condition->code;
                   code += std::string("?:= ") + iflabel + std::string(", ") + condition->name + std::string("\n");
-                  code += std::string(":= ")+elsest->name + std::string("\n"); //code += ":= " + elsest->name + std::string("\n");
+                  code += elsest->name; //code += ":= " + elsest->name + std::string("\n");
                   code += ": " + iflabel + std::string("\n");
                   code += st->code;
                   std::string temp = std::string("endif") + iflabel.substr(iflabel.find("e") + 1, iflabel.at(iflabel.size()-1));
@@ -604,7 +604,7 @@ elsestatement: %empty
                 {
                   CodeNode *node = new CodeNode;
                   std::string n = create_else();
-                  node->name =  n;
+                  node->name =  std::string(":= ") + n + std::string("\n");
                   CodeNode *st = $3;
                   node->code = decl_label_code(n) + st->code;
                   $$ = node;
