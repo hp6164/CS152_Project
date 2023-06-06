@@ -150,9 +150,17 @@ std::string decl_temp_code(std::string &temp)
 
 std::string create_if()
 {
-  static int num = 0;
-  std::string t = std::string("if_true")+std::to_string(num);
-  num ++;
+  static int if_num = 0;
+  std::string t = std::string("if_true")+std::to_string(if_num);
+  if_num ++;
+  return t;
+}
+
+std::string create_loop()
+{
+  static int loop_num = 0;
+  std::string t = std::string("beginloop")+std::to_string(loop_num);
+  loop_num ++;
   return t;
 }
 
@@ -547,7 +555,6 @@ ifstatement:   IF CONTAIN expressions CONTAIN L_CUR statements R_CUR elsestateme
                   code += std::string(":= ")+elsest->name + std::string("\n"); //code += ":= " + elsest->name + std::string("\n");
                   code += ": " + iflabel + std::string("\n");
                   code += st->code;
-                  //create endif here in 551
                   std::string temp = std::string("endif") + iflabel.substr(iflabel.find("e") + 1, iflabel.at(iflabel.size()-1));
                   code += std::string(":= ") + temp + std::string("\n"); //have end if
                   code += elsest->code;
@@ -574,7 +581,23 @@ elsestatement: %empty
                 }
                 ;
 
-loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR  {printf("loop --> CONTAIN expressions CONTAIN L_SQR statements R_SQR\n");}
+loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR
+            {
+                CodeNode* condition = $3;
+                CodeNode* st = $6;
+                CodeNode* node = new CodeNode;
+                std::string loopname = create_loop();
+                std::string integer = loopname.substr(loopname.find("p") + 1 , loopname.at(loopname.size() -1));
+                std::string code = std::string(": ") + loopname + std::string("\n") + condition->code;
+                code += std::string("?:= loopbody") + integer + std::string(", ") + condition->name + std::string("\n");
+                code += std::string(":= endloop") + integer + std::string("\n");
+                code += std::string(": loopbody") + integer + std::string("\n");
+                code += st->code;
+                code += std::string(":= ") + loopname + std::string("\n");
+                code += std::string(":= endloop")+ integer + std::string("\n");
+                node->code = code;
+                $$ = node;
+            } 
             ;
 
 expressions:    mathexp binop expressions
