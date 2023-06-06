@@ -642,7 +642,7 @@ expressions:    mathexp binop expressions
                   CodeNode* binoperat = $2;
                   CodeNode* expr = $3;
                   std::string temp = create_Temp();
-                  std::string code = decl_temp_code(temp) + binoperat->code + temp + std::string(", ") + mathxp->name + std::string(", ") + expr->name + std::string("\n");
+                  std::string code = decl_temp_code(temp) + mathxp->code + expr->code + binoperat->code + temp + std::string(", ") + mathxp->name + std::string(", ") + expr->name + std::string("\n");
                   CodeNode *node = new CodeNode;
                   node->name = temp;
                   node->code = code;
@@ -652,19 +652,29 @@ expressions:    mathexp binop expressions
                   {
                     CodeNode* mathxp = $2;
                     std::string temp = create_Temp();
-                    std::string code = decl_temp_code(temp) + std::string("! ") + temp + std::string(", ") + mathxp->code;
+                    std::string code = decl_temp_code(temp) + mathxp->code + std::string("! ") + temp + std::string(", ") + mathxp->name + std::string("\n");;
                     CodeNode *node = new CodeNode;
                     node->code = code;
+                    node->name = temp;
+                    $$ = node;
+                  }
+                | NOT mathexp binop expressions  
+                  {
+                    CodeNode* mathxp = $2;
+                    CodeNode* binoperat = $3;
+                    CodeNode* expr = $4;
+                    std::string temp = create_Temp();
+                    std::string temp2 = create_Temp();
+                    std::string code = decl_temp_code(temp) + decl_temp_code(temp2) + mathxp->code + expr->code + binoperat->code + temp + std::string(", ") + mathxp->name + std::string(", ") + expr->name + std::string("\n"); 
+                    code += std::string("! ") + temp2 + std::string(", ") + temp + std::string("\n");
+                    CodeNode *node = new CodeNode;
+                    node->code = code;
+                    node->name = temp2;
                     $$ = node;
                   }
                 | CONTAIN expressions CONTAIN   //New temp made here
                   {
-                    CodeNode* exp = $2;
-                    std::string code = std::string("|") + exp->code + std::string("|");
-                    CodeNode *node = new CodeNode;
-                    node->code = code;
-                    node->name = exp->name;
-                    $$ = node;
+                    $$ = $2;
                   }
                 | mathexp 
                   {
