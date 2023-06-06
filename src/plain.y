@@ -424,6 +424,13 @@ statement:  declarations
                 node->code = code;
                 $$ = node;
               }
+            | CONT PERIOD
+              {
+                std::string code = std::string("continue") + std::string(".");
+                CodeNode *node = new CodeNode;
+                node->code = code;
+                $$ = node;
+              }
             ;
 
 array:      LIST IDENTIFIER L_SQR DIGIT R_SQR
