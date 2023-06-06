@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<string>
 #include<vector>
+#include<stack>
 #include<string.h>
 #include<stdlib.h>
 #include "p.tab.h"
@@ -18,6 +19,7 @@ char *identToken;
 int numberToken;
 int  count_names = 0;
 int tempcounter = 0;
+int inloop = -1;
 std::string tempForArrange;
 
 enum Type { Integer, Array };
@@ -113,6 +115,8 @@ void print_symbol_table(void) {
 }
 
 
+std::stack<int> loopstack;
+
 void verifyDigit(std::string &dig)
 {
   int digit = std::stoi(dig);
@@ -158,9 +162,9 @@ std::string create_if()
 
 std::string create_loop()
 {
-  static int loop_num = 0;
-  std::string t = std::string("beginloop")+std::to_string(loop_num);
-  loop_num ++;
+  //static int loop_num = 0;
+  std::string t = std::string("beginloop")+std::to_string(loopstack.top());
+  //loop_num ++;
   return t;
 }
 
@@ -419,14 +423,33 @@ statement:  declarations
               }
             | BREAK PERIOD 
               {
-                std::string code = std::string("break") + std::string(".");
+                std::string code = = std::string(":= enbody");
+                if(loopstack.empty())
+                {
+                  yyerror("break is not in loop");
+                  exit(10);
+                }
+                else
+                {
+                  std::string code +=  std::to_string(loopstack.top()); + std::string("\n");
+                }
+                
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
               }
             | CONT PERIOD
               {
-                std::string code = std::string("continue") + std::string(".");
+                std::string code = std::string(":= beginloop"); 
+                if(loopstack.empty())
+                {
+                  yyerror("contn is not in a loop");
+                  exit(9);
+                }
+                else{
+                  code += std::to_string(loopstack.top()); 
+                }
+                code+= std::string("\n");
                 CodeNode *node = new CodeNode;
                 node->code = code;
                 $$ = node;
@@ -588,7 +611,12 @@ elsestatement: %empty
                 }
                 ;
 
-loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR
+loopbegin: LOOP {
+    inloop++;
+    loopstack.push(inloop);
+}
+
+loop:       loopbegin CONTAIN expressions CONTAIN L_CUR statements R_CUR
             {
                 CodeNode* condition = $3;
                 CodeNode* st = $6;
@@ -602,6 +630,7 @@ loop:       LOOP CONTAIN expressions CONTAIN L_CUR statements R_CUR
                 code += st->code;
                 code += std::string(":= ") + loopname + std::string("\n");
                 code += std::string(": endloop")+ integer + std::string("\n");
+                loopstack.pop();
                 node->code = code;
                 $$ = node;
             } 
@@ -619,20 +648,22 @@ expressions:    mathexp binop expressions
                   node->code = code;
                   $$ = node;
                 }
-                | NOT mathexp  
+                | NOT mathexp  //Work on NOT
                   {
                     CodeNode* mathxp = $2;
-                    std::string code = std::string("!") + mathxp->code;
+                    std::string temp = create_Temp();
+                    std::string code = decl_temp_code(temp) + std::string("! ") + temp + std::string(", ") + mathxp->code;
                     CodeNode *node = new CodeNode;
                     node->code = code;
                     $$ = node;
                   }
-                | CONTAIN expressions CONTAIN
+                | CONTAIN expressions CONTAIN   //New temp made here
                   {
                     CodeNode* exp = $2;
                     std::string code = std::string("|") + exp->code + std::string("|");
                     CodeNode *node = new CodeNode;
                     node->code = code;
+                    node->name = exp->name;
                     $$ = node;
                   }
                 | mathexp 
