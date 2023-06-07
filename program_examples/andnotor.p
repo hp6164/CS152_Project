@@ -25,6 +25,15 @@ $should print 111
         print(no).
     }
 
+    IF | NOT two lt zero AND yes gt no | 
+    {
+        print(yes).
+    }
+    ELSE
+    {
+        print(no).
+    }
+
 $ calculates the max of three integers
     num a.
     num b.
